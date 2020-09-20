@@ -1,4 +1,4 @@
-# File manager
+# File manager application
 
 ## Contribute
 
