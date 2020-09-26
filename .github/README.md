@@ -6,7 +6,9 @@ If you're interested in contributing to the project, please refer to [CONTRIBUTI
 
 ## License
 
-![dahliaOS](https://imgur.com/Y39ZrJO.png)
+<p align="left">
+  <img width="15%" src="./assets/images/logo/new/dahliaOS_logo_with_text_black.svg"
+</p>
 
 Copyright @ 2019-2020 The dahliaOS Authors contact@dahliaos.io
 
