@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for Pangolin
+about: Suggest an idea for the File Manager
 title: ''
 labels: ''
 assignees: ''
