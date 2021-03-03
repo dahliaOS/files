@@ -24,7 +24,6 @@ import 'package:files/searchappbar.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:open_file/open_file.dart';
 import 'package:flutter/cupertino.dart';
 
 void main() {
@@ -394,7 +393,7 @@ class _FilesHomeState extends State<FilesHome> {
                                           setState(
                                               () => _currentDir = item.path);
                                         } else {
-                                          final result =
+                                          /* final result =
                                               await OpenFile.open(item.path);
                                           print(result.type);
                                           if (result.type == ResultType.error) {
@@ -412,7 +411,8 @@ class _FilesHomeState extends State<FilesHome> {
                                                 ],
                                               ),
                                             );
-                                          }
+                                          } */
+                                          return;
                                         }
                                       },
                                       cells: [

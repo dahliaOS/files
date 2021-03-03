@@ -24,8 +24,8 @@ dependencies:
   flutter:
     sdk: flutter
   filesize: any
-  xdg_directories: any
-  open_file: any
+  xdg_directories: ^0.2.0
+  intl: any
 
 dev_dependencies:
   flutter_test:
