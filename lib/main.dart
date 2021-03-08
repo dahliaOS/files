@@ -21,7 +21,6 @@ import 'dart:io';
 import 'package:files/entity_info.dart';
 import 'package:files/folder_provider.dart';
 import 'package:files/searchappbar.dart';
-import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
@@ -31,7 +30,7 @@ void main() {
 }
 
 final _folderProvider = FolderProvider();
-String _currentDir;
+late String _currentDir;
 TextEditingController _textcontroller = TextEditingController();
 FocusNode _focusNode = FocusNode();
 
@@ -53,7 +52,7 @@ class FilesHome extends StatefulWidget {
 
 class _FilesHomeState extends State<FilesHome> {
   List<SideDestination> sideDestinations = [];
-  RelativeRect rect;
+  RelativeRect? rect;
   ScrollController _controller = ScrollController();
 
   bool ascending = true;
@@ -100,8 +99,8 @@ class _FilesHomeState extends State<FilesHome> {
       }
     }
 
-    directories.sort((a, b) => sort(a, b, isDirectory: true));
-    files.sort((a, b) => sort(a, b));
+    directories.sort((a, b) => sort(a, b, isDirectory: true)!);
+    files.sort((a, b) => sort(a, b)!);
 
     return [...directories, ...files];
   }
@@ -110,7 +109,7 @@ class _FilesHomeState extends State<FilesHome> {
     return path.split("/").last;
   }
 
-  int sort(EntityInfo a, EntityInfo b, {isDirectory = false}) {
+  int? sort(EntityInfo a, EntityInfo b, {isDirectory = false}) {
     EntityInfo item1 = a;
     EntityInfo item2 = b;
 
@@ -124,12 +123,12 @@ class _FilesHomeState extends State<FilesHome> {
         return getEntityName(item1.path.toLowerCase())
             .compareTo(getEntityName(item2.path.toLowerCase()));
       case 1:
-        return item1.stat.modified.compareTo(item2.stat.modified);
+        return item1.stat!.modified.compareTo(item2.stat!.modified);
       case 2:
         if (isDirectory) {
-          return item1.children.length.compareTo(item2.children.length);
+          return item1.children!.length.compareTo(item2.children!.length);
         } else {
-          return item1.stat.size.compareTo(item2.stat.size);
+          return item1.stat!.size.compareTo(item2.stat!.size);
         }
         break;
     }
@@ -325,7 +324,7 @@ class _FilesHomeState extends State<FilesHome> {
                 future: getInfoForDir(Directory(_currentDir)),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
-                    if (snapshot.data.isNotEmpty) {
+                    if (snapshot.data!.isNotEmpty) {
                       return ConstrainedBox(
                         constraints: BoxConstraints(
                           minWidth: MediaQuery.of(context).size.width,
@@ -383,9 +382,9 @@ class _FilesHomeState extends State<FilesHome> {
                                   ),
                                 ],
                                 rows: List.generate(
-                                  snapshot.data.length,
+                                  snapshot.data!.length,
                                   (index) {
-                                    EntityInfo item = snapshot.data[index];
+                                    EntityInfo item = snapshot.data![index];
 
                                     return DataRow(
                                       onSelectChanged: (_) async {
@@ -442,7 +441,7 @@ class _FilesHomeState extends State<FilesHome> {
                                           Text(
                                             DateFormat("HH:mm - d MMM yyyy")
                                                 .format(
-                                              item.stat.modified,
+                                              item.stat!.modified,
                                             ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -450,10 +449,10 @@ class _FilesHomeState extends State<FilesHome> {
                                         DataCell(
                                           Text(
                                             item.isDirectory
-                                                ? item.children.length
+                                                ? item.children!.length
                                                         .toString() +
                                                     " items"
-                                                : filesize(item.stat.size),
+                                                : "todo",
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),

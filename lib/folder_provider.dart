@@ -27,8 +27,8 @@ class FolderProvider {
     dirNames.forEach((element) {
       directories.add(
         MapEntry(
-          getUserDirectory(element).path,
-          icons[element],
+          getUserDirectory(element)!.path,
+          icons[element]!,
         ),
       );
     });
@@ -38,7 +38,7 @@ class FolderProvider {
       0,
       MapEntry(
         backDir.join("/"),
-        icons["HOME"],
+        icons["HOME"]!,
       ),
     );
     //directories.sort((a, b) => a.key.compareTo(b.key));

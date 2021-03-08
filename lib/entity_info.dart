@@ -19,10 +19,10 @@ limitations under the License.
 import 'dart:io';
 
 class EntityInfo {
-  FileSystemEntity entity;
-  FileStat stat;
-  List<FileSystemEntity> children = [];
-  EntityType entityType;
+  FileSystemEntity? entity;
+  FileStat? stat;
+  List<FileSystemEntity>? children = [];
+  EntityType? entityType;
 
   EntityInfo({
     this.entity,
@@ -33,7 +33,7 @@ class EntityInfo {
 
   bool get isDirectory => entityType == EntityType.DIRECTORY;
 
-  String get path => entity.path;
+  String get path => entity!.path;
 }
 
 enum EntityType {
