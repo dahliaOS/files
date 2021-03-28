@@ -420,13 +420,16 @@ class _FilesHomeState extends State<FilesHome> {
                                             children: [
                                               item.isDirectory
                                                   ? SizedBox(
-                                                      height: 24,
+                                                      width: 30,
+                                                      height: 30,
                                                       child: Image.asset(
                                                           "assets/icons/folder.png"),
                                                     )
-                                                  : Icon(
-                                                      Icons.insert_drive_file,
-                                                      size: 24,
+                                                  : SizedBox(
+                                                      width: 30,
+                                                      height: 30,
+                                                      child: Image.asset(
+                                                          "assets/icons/file.png"),
                                                     ),
                                               SizedBox(width: 16),
                                               ConstrainedBox(
