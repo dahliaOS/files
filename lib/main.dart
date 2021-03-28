@@ -418,11 +418,16 @@ class _FilesHomeState extends State<FilesHome> {
                                         DataCell(
                                           Row(
                                             children: [
-                                              Icon(
-                                                item.isDirectory
-                                                    ? Icons.folder
-                                                    : Icons.insert_drive_file,
-                                              ),
+                                              item.isDirectory
+                                                  ? SizedBox(
+                                                      height: 24,
+                                                      child: Image.asset(
+                                                          "assets/icons/folder.png"),
+                                                    )
+                                                  : Icon(
+                                                      Icons.insert_drive_file,
+                                                      size: 24,
+                                                    ),
                                               SizedBox(width: 16),
                                               ConstrainedBox(
                                                 constraints: BoxConstraints(
