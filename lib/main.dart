@@ -423,13 +423,17 @@ class _FilesHomeState extends State<FilesHome> {
                                                       width: 30,
                                                       height: 30,
                                                       child: Image.asset(
-                                                          "assets/icons/folder.png"),
+                                                        "lib/assets/icons/folder.png",
+                                                        package: "files",
+                                                      ),
                                                     )
                                                   : SizedBox(
                                                       width: 30,
                                                       height: 30,
                                                       child: Image.asset(
-                                                          "assets/icons/file.png"),
+                                                        "lib/assets/icons/file.png",
+                                                        package: "files",
+                                                      ),
                                                     ),
                                               SizedBox(width: 16),
                                               ConstrainedBox(
