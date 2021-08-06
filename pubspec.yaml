@@ -22,7 +22,7 @@ dependencies:
   url_launcher: any
   windows_path_provider:
     git:
-      url: https://github.com/HrX03/windows_path_provider
+      url: https://github.com/HrX03/windows_path_provider.git
   xdg_directories: ^0.2.0
 
 dev_dependencies:
