@@ -20,6 +20,7 @@ dependencies:
   path_provider: ^2.0.2
   provider: ^6.0.0
   url_launcher: any
+  ffi: ^1.1.2
   windows_path_provider:
     git:
       url: https://github.com/HrX03/windows_path_provider.git
