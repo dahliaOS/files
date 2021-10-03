@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Files
+Exec=files
+Terminal=false
+Icon=files
+Type=Application
+Categories=Utility;

@@ -1,0 +1,10 @@
+{
+      "id": "io.dahliaos.files",
+      "altName": "files",
+      "realName": "Files",
+      "version": "dahliaOS-latest",
+      "description": "File manager for dahliaOS",
+      "sourceCode": "https://github.com/dahliaOS/files",
+      "hash": "DAP_AUTOMATION_PKGHASH",
+      "architecture": "x86_64"
+},
