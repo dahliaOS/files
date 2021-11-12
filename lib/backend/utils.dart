@@ -13,7 +13,7 @@ class Utils {
         "application/json": MdiIcons.codeBraces,
         "application/msword": MdiIcons.fileWordOutline,
         "application/octet-stream": MdiIcons.fileDocumentOutline,
-        "application/pdf": MdiIcons.filePdfOutline,
+        "application/pdf": MdiIcons.fileDocumentOutline,
         "application/vnd.microsoft.portable-executable":
             MdiIcons.microsoftWindows,
         "application/vnd.ms-excel": MdiIcons.fileExcelOutline,
