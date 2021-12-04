@@ -35,9 +35,11 @@ TextEditingController _textcontroller = TextEditingController();
 FocusNode _focusNode = FocusNode();
 
 class Files extends StatelessWidget {
+  const Files({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       title: 'Files',
       theme: ThemeData.dark().copyWith(accentColor: Colors.deepOrange),
       home: new FilesHome(),
