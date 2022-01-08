@@ -6,7 +6,7 @@ import 'package:files/backend/providers.dart';
 class EntityStatCacheHelper {
   Future<EntityStat> get(String path) async {
     final EntityStat? stat =
-        isar.entityStats.where().pathEqualTo(path).findFirstSync();
+        isar.entityStats.where().pathNotEqualTo(path).findFirstSync();
 
     if (stat == null) {
       final EntityStat fetchedStat = EntityStat.fromStat(

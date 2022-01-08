@@ -1,8 +1,11 @@
 import 'package:files/backend/database/helper.dart';
+import 'package:files/backend/database/model.dart';
 import 'package:files/backend/folder_provider.dart';
 import 'package:files/backend/stat_cache_proxy.dart';
-import 'package:files/isar.g.dart';
+import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 class _ProvidersSingleton {
   _ProvidersSingleton._();
@@ -42,7 +45,15 @@ class _ProvidersSingleton {
 
   Future<void> _init() async {
     if (_inited) return;
-    _isar = await openIsar();
+    WidgetsFlutterBinding.ensureInitialized();
+    final dir = await getApplicationDocumentsDirectory();
+    _isar = await Isar.open(
+      schemas: [EntityStatSchema],
+      directory: p.join(
+        dir.path,
+        'isar',
+      ),
+    );
     _folderProvider = await FolderProvider.init();
     _helper = EntityStatCacheHelper();
     _cacheProxy = StatCacheProxy();
@@ -64,7 +75,10 @@ Future<void> disposeProviders() async =>
     _ProvidersSingleton.instance._dispose();
 
 Isar get isar => _ProvidersSingleton.instance.isar;
+
 FolderProvider get folderProvider =>
     _ProvidersSingleton.instance.folderProvider;
+
 EntityStatCacheHelper get helper => _ProvidersSingleton.instance.helper;
+
 StatCacheProxy get cacheProxy => _ProvidersSingleton.instance.cacheProxy;
