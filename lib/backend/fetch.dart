@@ -94,7 +94,7 @@ class CancelableFsFetch {
   int? _sort(
     EntityInfo a,
     EntityInfo b, {
-    isDirectory = false,
+    bool isDirectory = false,
   }) {
     EntityInfo item1 = a;
     EntityInfo item2 = b;
