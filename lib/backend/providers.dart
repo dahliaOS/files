@@ -49,10 +49,7 @@ class _ProvidersSingleton {
     final dir = await getApplicationDocumentsDirectory();
     _isar = await Isar.open(
       schemas: [EntityStatSchema],
-      directory: p.join(
-        dir.path,
-        'isar',
-      ),
+      directory: p.join(dir.path, 'isar'),
     );
     _folderProvider = await FolderProvider.init();
     _helper = EntityStatCacheHelper();
