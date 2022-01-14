@@ -95,7 +95,8 @@ class _FilesHomeState extends State<FilesHome> {
   @override
   void initState() {
     super.initState();
-    for (final element in folderProvider.directories) {
+    for (final MapEntry<String, IconData> element
+        in folderProvider.directories) {
       sideDestinations.add(
         SideDestination(
           element.value,
