@@ -4,15 +4,16 @@ import 'package:files/backend/providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
 
-export 'package:files/isar.g.dart';
 export 'package:isar/isar.dart';
+
+part 'model.g.dart';
 
 @Collection()
 class EntityStat with ChangeNotifier {
   @Id()
   int? id;
 
-  @Index(unique: true, indexType: IndexType.hash)
+  @Index(unique: true, type: IndexType.hash)
   late String path;
 
   late DateTime changed;
