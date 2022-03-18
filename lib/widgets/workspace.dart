@@ -28,8 +28,11 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
   /* TO KEEP */
   late final CachingScrollController horizontalController;
   late final CachingScrollController verticalController;
+  late TextEditingController textController;
 
   WorkspaceController get controller => widget.controller;
+
+  String folderName = ' ';
 
   @override
   void initState() {
@@ -38,6 +41,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
         initialScrollOffset: controller.lastHorizontalScrollOffset);
     verticalController = CachingScrollController(
         initialScrollOffset: controller.lastVerticalScrollOffset);
+    textController = TextEditingController();
     controller.addListener(onControllerUpdate);
   }
 
@@ -47,6 +51,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
         horizontalController.lastPosition.pixels;
     controller.lastVerticalScrollOffset =
         verticalController.lastPosition.pixels;
+    textController.dispose();
     controller.removeListener(onControllerUpdate);
     super.dispose();
   }
@@ -102,10 +107,15 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
                 ),
                 tooltip: "New folder",
                 onPressed: () async {
+                  final folderNameDialog = await openDialog();
                   final PathParts currentDir =
                       PathParts.parse(controller.currentDir);
-                  currentDir.parts.add("sussy");
-                  await Directory(currentDir.toPath()).create();
+                  currentDir.parts.add('$folderNameDialog');
+                  if (folderNameDialog != null) {
+                    await Directory(currentDir.toPath())
+                        .create(recursive: true);
+                    controller.currentDir = currentDir.toPath();
+                  }
                 },
                 splashRadius: 16,
               ),
@@ -138,6 +148,49 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
       ],
     );
   }
+
+  Future<String?> openDialog() => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("New Folder"),
+          content: TextField(
+            autofocus: true,
+            decoration: const InputDecoration(
+              hintText: "Folder name",
+            ),
+            controller: textController,
+            onSubmitted: (value) {
+              Navigator.pop(context, value);
+            },
+          ),
+          actions: [
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              child: const Text("Create"),
+              onPressed: textController.text != ""
+                  ? () => showDialog(
+                        context: context,
+                        builder: (BuildContext context) => AlertDialog(
+                            title: const Text("Folder name cannot be empty"),
+                            actions: [
+                              TextButton(
+                                child: Text("OK"),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ]),
+                      )
+                  : () => Navigator.of(context).pop(textController.text),
+            ),
+          ],
+        ),
+      );
 
   String get selectedItemsLabel {
     if (controller.selectedItems.isEmpty) return "";
