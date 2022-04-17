@@ -24,10 +24,9 @@ import 'package:files/backend/utils.dart';
 import 'package:files/widgets/side_pane.dart';
 import 'package:files/widgets/tab_strip.dart';
 import 'package:files/widgets/workspace.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 
+// ignore: avoid_void_async
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await init();
@@ -96,7 +95,8 @@ class _FilesHomeState extends State<FilesHome> {
   @override
   void initState() {
     super.initState();
-    for (final MapEntry element in folderProvider.directories) {
+    for (final MapEntry<String, IconData> element
+        in folderProvider.directories) {
       sideDestinations.add(
         SideDestination(
           element.value,
@@ -155,8 +155,8 @@ class _FilesHomeState extends State<FilesHome> {
                         animation: primaryAnimation,
                         secondaryAnimation: secondaryAnimation,
                         transitionType: SharedAxisTransitionType.scaled,
-                        child: child,
                         fillColor: Colors.transparent,
+                        child: child,
                       );
                     },
                     child: FilesWorkspace(
