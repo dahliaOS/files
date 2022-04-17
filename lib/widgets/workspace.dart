@@ -100,6 +100,33 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
               ),
             ],
             actions: [
+              PopupMenuButton<String>(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
+                offset: const Offset(0, 50),
+                onSelected: (value) {
+                  if (value == 'showHidden') {
+                    controller.showHidden = !controller.showHidden;
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'showHidden',
+                    child: SwitchListTile(
+                      title: const Text('Show hidden files'),
+                      value: controller.showHidden,
+                      onChanged: (value) {
+                        setState(() {
+                          controller.showHidden = value;
+                          controller.currentDir = controller.currentDir;
+                          Navigator.pop(context);
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
               IconButton(
                 icon: const Icon(
                   Icons.create_new_folder_outlined,
@@ -335,6 +362,7 @@ class WorkspaceController with ChangeNotifier {
   late String _currentDir;
   final List<double> _columnWidths = [480, 180, 120, 120];
   bool _ascending = true;
+  bool _showHidden = false;
   int _columnIndex = 0;
   final List<EntityInfo> _selectedItems = [];
   List<EntityInfo>? _currentInfo;
@@ -354,7 +382,7 @@ class WorkspaceController with ChangeNotifier {
         _loadingProgress = value;
         notifyListeners();
       },
-      showHidden: true,
+      showHidden: _showHidden,
       ascending: _ascending,
       columnIndex: _columnIndex,
       onFileSystemException: (value) {},
@@ -381,6 +409,12 @@ class WorkspaceController with ChangeNotifier {
   bool get ascending => _ascending;
   set ascending(bool value) {
     _ascending = value;
+    notifyListeners();
+  }
+
+  bool get showHidden => _showHidden;
+  set showHidden(bool value) {
+    _showHidden = value;
     notifyListeners();
   }
 
