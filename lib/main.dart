@@ -21,9 +21,9 @@ import 'dart:io';
 import 'package:files/entity_info.dart';
 import 'package:files/folder_provider.dart';
 import 'package:files/searchappbar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/cupertino.dart';
 
 void main() {
   runApp(new Files());
@@ -41,7 +41,9 @@ class Files extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Files',
-      theme: ThemeData.dark().copyWith(accentColor: Colors.deepOrange),
+      theme: ThemeData.dark().copyWith(
+          colorScheme:
+              ColorScheme.fromSwatch().copyWith(secondary: Colors.deepOrange)),
       home: new FilesHome(),
     );
   }
@@ -134,6 +136,7 @@ class _FilesHomeState extends State<FilesHome> {
         }
         break;
     }
+    return null;
   }
 
   @override
@@ -151,7 +154,7 @@ class _FilesHomeState extends State<FilesHome> {
                   child: Material(
                     borderRadius: BorderRadius.circular(10),
                     color: _currentDir == sideDestinations[index].path
-                        ? Theme.of(context).accentColor
+                        ? Theme.of(context).colorScheme.secondary
                         : null,
                     child: ListTile(
                       dense: true,
@@ -272,7 +275,7 @@ class _FilesHomeState extends State<FilesHome> {
                                           hintText: "Folder Name"),
                                     ),
                                     actions: <Widget>[
-                                      FlatButton(
+                                      TextButton(
                                         child: Padding(
                                           padding: const EdgeInsets.all(12.0),
                                           child: Text("Cancel"),
@@ -282,7 +285,7 @@ class _FilesHomeState extends State<FilesHome> {
                                         },
                                       ),
                                       Container(
-                                        child: FlatButton(
+                                        child: TextButton(
                                           child: Padding(
                                             padding: const EdgeInsets.all(12.0),
                                             child: Text("Create Folder"),
@@ -336,7 +339,7 @@ class _FilesHomeState extends State<FilesHome> {
                           thicknessWhileDragging: 20,
                           thickness: 10,
                           controller: _controller,
-                          isAlwaysShown: true,
+                          thumbVisibility: true,
                           child: SingleChildScrollView(
                             child: DataTable(
                                 sortAscending: ascending,
