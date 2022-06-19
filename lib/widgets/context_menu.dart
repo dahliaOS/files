@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ContextMenu extends StatelessWidget {
   final Widget child;
-  final List<ContextMenuEntry> entries;
+  final List<PopupMenuEntry> entries;
   final bool openOnSecondary;
   final bool openOnLong;
 
@@ -37,47 +37,31 @@ class ContextMenu extends StatelessWidget {
         position.dx,
         position.dy,
       ),
-      items: entries
-          .map(
-            (e) => _ContextMenuEntry(
-              id: e.id,
-              icon: e.icon,
-              text: e.text,
-              onTap: e.onTap,
-            ),
-          )
-          .toList(),
+      items: entries,
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
     );
   }
 }
 
-class ContextMenuEntry {
+/// Just for rename
+class ContextMenuDivider extends PopupMenuDivider {
+  const ContextMenuDivider({Key? key}) : super(key: key);
+}
+
+class ContextMenuEntry extends PopupMenuEntry<String> {
   final String id;
-  final Widget icon;
+  final Widget? icon;
   final Widget text;
   final VoidCallback onTap;
+  final Widget? shortcut;
 
   const ContextMenuEntry({
     required this.id,
-    required this.icon,
+    this.icon,
     required this.text,
     required this.onTap,
-  });
-}
-
-class _ContextMenuEntry extends PopupMenuEntry<String> {
-  final String id;
-  final Widget icon;
-  final Widget text;
-  final VoidCallback onTap;
-
-  const _ContextMenuEntry({
-    required this.id,
-    required this.icon,
-    required this.text,
-    required this.onTap,
+    this.shortcut,
     Key? key,
   }) : super(key: key);
 
@@ -91,12 +75,12 @@ class _ContextMenuEntry extends PopupMenuEntry<String> {
   bool represents(String? value) => id == value;
 }
 
-class _ContextMenuEntryState extends State<_ContextMenuEntry> {
+class _ContextMenuEntryState extends State<ContextMenuEntry> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: widget.height,
-      width: 320,
+      width: 370,
       child: InkWell(
         onTap: () {
           Navigator.pop(context);
@@ -106,15 +90,17 @@ class _ContextMenuEntryState extends State<_ContextMenuEntry> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              IconTheme.merge(
-                data: IconThemeData(
-                  size: 20,
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              if (widget.icon != null) ...[
+                IconTheme.merge(
+                  data: IconThemeData(
+                    size: 20,
+                    color:
+                        Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                  child: widget.icon!,
                 ),
-                child: widget.icon,
-              ),
-              const SizedBox(width: 16),
+                const SizedBox(width: 16),
+              ],
               Expanded(
                 child: DefaultTextStyle(
                   style: TextStyle(
@@ -128,6 +114,21 @@ class _ContextMenuEntryState extends State<_ContextMenuEntry> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              if (widget.shortcut != null)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: DefaultTextStyle(
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.5),
+                  ),
+                  child: widget.shortcut!,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                ),
             ],
           ),
         ),

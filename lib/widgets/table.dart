@@ -414,21 +414,36 @@ class _FilesRowState extends State<_FilesRow> {
                   child: ContextMenu(
                     entries: [
                       ContextMenuEntry(
+                        id: 'open',
+                        text: const Text("Open"),
+                        onTap: () {},
+                        shortcut: const Text("Return"),
+                      ),
+                      ContextMenuEntry(
+                        id: 'open_with',
+                        text: const Text("Open with other application"),
+                        onTap: () {},
+                      ),
+                      const ContextMenuDivider(),
+                      ContextMenuEntry(
                         id: 'copy',
                         icon: const Icon(Icons.file_copy_outlined),
-                        text: Text("Copy file"),
+                        text: const Text("Copy file"),
                         onTap: () {},
+                        shortcut: const Text("Ctrl+C"),
                       ),
                       ContextMenuEntry(
                         id: 'cut',
                         icon: const Icon(Icons.cut_outlined),
-                        text: Text("Cut file"),
+                        text: const Text("Cut file"),
                         onTap: () {},
+                        shortcut: const Text("Ctrl+X"),
                       ),
                       ContextMenuEntry(
                         id: 'paste',
                         icon: const Icon(Icons.paste_outlined),
-                        text: Text("Paste file"),
+                        text: const Text("Paste file"),
+                        shortcut: const Text("Ctrl+V"),
                         onTap: () {},
                       ),
                     ],
