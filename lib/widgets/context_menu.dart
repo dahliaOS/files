@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
 
+/// [ContextMenu] provides popup menu for the [child] widget and contains [entries].
 class ContextMenu extends StatelessWidget {
+  /// [child] is the widget for which the context menu will be called.
   final Widget child;
+
+  /// The [entries] are displayed in the order they are provided.
+  /// They can be [ContextMenuEntry], [ContextMenuDivider], [ContextSubMenuEntry] or any other widgets inherited from PopupMenuEntry.
   final List<PopupMenuEntry> entries;
+
+  /// Whether the context menu will be displayed when tapped on a secondary button.
+  /// This defaults to true.
   final bool openOnSecondary;
+
+  /// Whether the context menu will be displayed when a long press gesture with a primary button has been recognized.
+  /// This defaults to true.
   final bool openOnLong;
 
   const ContextMenu({
@@ -31,17 +42,28 @@ class ContextMenu extends StatelessWidget {
   }
 }
 
+/// [ContextSubMenuEntry] is a [PopupMenuEntry] that displays a submenu with [entries].
 class ContextSubMenuEntry extends PopupMenuEntry<String> {
+  /// Using for [represents] method.
   final String id;
-  final Widget text;
+
+  /// A widget to display before the title.
+  /// Typically a [Icon] widget.
+  final Widget? leading;
+
+  /// The primary content of the menu entry.
+  /// Typically a [Text] widget.
+  final Widget title;
+
+  /// The [entries] are displayed in the order they are provided.
+  /// They can be [ContextMenuEntry], [ContextMenuDivider], [ContextSubMenuEntry] or any other widgets inherited from PopupMenuEntry.
   final List<PopupMenuEntry> entries;
-  final Widget? icon;
 
   const ContextSubMenuEntry({
     required this.id,
-    required this.text,
+    this.leading,
+    required this.title,
     required this.entries,
-    this.icon,
     Key? key,
   }) : super(key: key);
 
@@ -55,19 +77,16 @@ class ContextSubMenuEntry extends PopupMenuEntry<String> {
   bool represents(String? value) => id == value;
 }
 
-// TODO: if not enough space, show from left
 class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {
-  final _subMenuKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      key: _subMenuKey,
       onTap: () {
-        final RenderBox renderBox =
-            _subMenuKey.currentContext?.findRenderObject() as RenderBox;
-        final Size size = renderBox.size;
+        // Get current render box of the context widget (ContextSubMenuEntry).
+        final RenderBox renderBox = context.findRenderObject() as RenderBox;
+        // Get the position where the submenu should be opened.
         final Offset offset =
-            renderBox.localToGlobal(Offset(size.width + 1, -8));
+            renderBox.localToGlobal(Offset(renderBox.size.width + 1, -8));
 
         _openContextMenu(context, offset, widget.entries);
       },
@@ -76,14 +95,14 @@ class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
-            if (widget.icon != null) ...[
+            if (widget.leading != null) ...[
               IconTheme.merge(
                 data: IconThemeData(
                   size: 20,
                   color:
                       Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 ),
-                child: widget.icon!,
+                child: widget.leading!,
               ),
               const SizedBox(width: 16),
             ],
@@ -95,7 +114,7 @@ class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {
                       Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 ),
                 overflow: TextOverflow.ellipsis,
-                child: widget.text,
+                child: widget.title,
               ),
             ),
             IconTheme.merge(
@@ -112,17 +131,30 @@ class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {
   }
 }
 
+/// [ContextSubMenuEntry] is a [PopupMenuEntry] that displays a base menu entry.
 class ContextMenuEntry extends PopupMenuEntry<String> {
+  /// Using for [represents] method.
   final String id;
-  final Widget? icon;
-  final Widget text;
+
+  /// A widget to display before the title.
+  /// Typically a [Icon] widget.
+  final Widget? leading;
+
+  /// The primary content of the menu entry.
+  /// Typically a [Text] widget.
+  final Widget title;
+
+  /// A tap with a primary button has occurred.
   final VoidCallback onTap;
+
+  /// Optional content to display keysequence after the title.
+  /// Typically a [Text] widget.
   final Widget? shortcut;
 
   const ContextMenuEntry({
     required this.id,
-    this.icon,
-    required this.text,
+    this.leading,
+    required this.title,
     required this.onTap,
     this.shortcut,
     Key? key,
@@ -151,14 +183,14 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
-            if (widget.icon != null) ...[
+            if (widget.leading != null) ...[
               IconTheme.merge(
                 data: IconThemeData(
                   size: 20,
                   color:
                       Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 ),
-                child: widget.icon!,
+                child: widget.leading!,
               ),
               const SizedBox(width: 16),
             ],
@@ -170,7 +202,7 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
                       Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 ),
                 overflow: TextOverflow.ellipsis,
-                child: widget.text,
+                child: widget.title,
               ),
             ),
             if (widget.shortcut != null)
@@ -191,12 +223,19 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
 }
 
 /// Just for rename
+/// A horizontal divider in a Material Design popup menu.
+///
+/// TODO: It is necessary to discuss whether such a decision is correct.
 class ContextMenuDivider extends PopupMenuDivider {
   const ContextMenuDivider({Key? key}) : super(key: key);
 }
 
-void _openContextMenu(BuildContext context, Offset position,
-    List<PopupMenuEntry<dynamic>> entries) {
+/// Show a popup menu that contains the [entries] at [position].
+void _openContextMenu(
+  BuildContext context,
+  Offset position,
+  List<PopupMenuEntry<dynamic>> entries,
+) {
   showMenu(
     context: context,
     position: RelativeRect.fromLTRB(
