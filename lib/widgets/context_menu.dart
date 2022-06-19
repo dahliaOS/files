@@ -94,8 +94,10 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
                 IconTheme.merge(
                   data: IconThemeData(
                     size: 20,
-                    color:
-                        Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.7),
                   ),
                   child: widget.icon!,
                 ),
@@ -110,24 +112,24 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
                         .onSurface
                         .withOpacity(0.7),
                   ),
-                  child: widget.text,
                   overflow: TextOverflow.ellipsis,
+                  child: widget.text,
                 ),
               ),
               if (widget.shortcut != null)
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: DefaultTextStyle(
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(0.5),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.5),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    child: widget.shortcut!,
                   ),
-                  child: widget.shortcut!,
-                  overflow: TextOverflow.ellipsis,
-                ),
                 ),
             ],
           ),

@@ -116,6 +116,11 @@ class _FilesHomeState extends State<FilesHome> {
         SidePane(
           destinations: sideDestinations,
           workspace: workspaces[currentWorkspace],
+          onNewTab: (String tabPath) {
+            workspaces.add(WorkspaceController(initialDir: tabPath));
+            currentWorkspace = workspaces.length - 1;
+            setState(() {});
+          },
         ),
         Expanded(
           child: Material(
