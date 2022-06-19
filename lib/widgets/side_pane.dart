@@ -70,7 +70,7 @@ class _SidePaneState extends State<SidePane> {
                     ),
                     ContextMenuEntry(
                       id: 'open_in_new_window',
-                      text: const Text("Copy in new window"),
+                      text: const Text("Open in new window"),
                       onTap: () {},
                     ),
                   ],
