@@ -17,14 +17,14 @@ abstract class BaseContextMenuEntry extends PopupMenuEntry<String> {
 
   const BaseContextMenuEntry({
     required this.id,
-    this.leading,
     required this.title,
+    this.leading,
     this.enabled = true,
     Key? key,
   }) : super(key: key);
 
   @override
-  double get height => 40;
+  double get height => 48;
 
   @override
   bool represents(String? value) => id == value;
@@ -41,9 +41,9 @@ class ContextMenuEntry extends BaseContextMenuEntry {
 
   const ContextMenuEntry({
     required String id,
-    Widget? leading,
     required Widget title,
     required this.onTap,
+    Widget? leading,
     this.shortcut,
     bool enabled = true,
     Key? key,
@@ -132,6 +132,9 @@ class ContextMenuDivider extends BaseContextMenuEntry {
 
   @override
   bool represents(void value) => false;
+
+  @override
+  double get height => 8;
 
   @override
   State<ContextMenuDivider> createState() => _ContextMenuDividerState();

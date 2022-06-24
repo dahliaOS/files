@@ -9,9 +9,9 @@ class ContextSubMenuEntry extends BaseContextMenuEntry {
 
   const ContextSubMenuEntry({
     required String id,
-    Widget? leading,
     required Widget title,
     required this.entries,
+    Widget? leading,
     bool enabled = true,
     Key? key,
   }) : super(
