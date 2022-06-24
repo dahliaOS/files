@@ -1,3 +1,4 @@
+import 'package:files/widgets/context_menu/context_menu.dart';
 import 'package:files/widgets/context_menu/context_menu_entry.dart';
 import 'package:flutter/material.dart';
 
@@ -45,7 +46,7 @@ class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {
               final Offset offset =
                   renderBox.localToGlobal(Offset(renderBox.size.width + 1, -8));
 
-              _openContextMenu(context, offset, widget.entries);
+              openContextMenu(context, offset, widget.entries);
             }
           : null,
       child: Container(
@@ -97,24 +98,4 @@ class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {
       ),
     );
   }
-}
-
-/// Show a popup menu that contains the [entries] at [position].
-void _openContextMenu(
-  BuildContext context,
-  Offset position,
-  List<PopupMenuEntry<dynamic>> entries,
-) {
-  showMenu(
-    context: context,
-    position: RelativeRect.fromLTRB(
-      position.dx,
-      position.dy,
-      position.dx,
-      position.dy,
-    ),
-    items: entries,
-    color: Theme.of(context).colorScheme.surface,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-  );
 }

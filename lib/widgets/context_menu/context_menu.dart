@@ -31,11 +31,11 @@ class ContextMenu extends StatelessWidget {
     return GestureDetector(
       onLongPressStart: openOnLong
           ? (details) =>
-              _openContextMenu(context, details.globalPosition, entries)
+              openContextMenu(context, details.globalPosition, entries)
           : null,
       onSecondaryTapUp: openOnSecondary
           ? (details) =>
-              _openContextMenu(context, details.globalPosition, entries)
+              openContextMenu(context, details.globalPosition, entries)
           : null,
       behavior: HitTestBehavior.translucent,
       child: child,
@@ -44,7 +44,8 @@ class ContextMenu extends StatelessWidget {
 }
 
 /// Show a popup menu that contains the [entries] at [position].
-void _openContextMenu(
+/// Can be used without [ContextMenu] widget
+void openContextMenu(
   BuildContext context,
   Offset position,
   List<PopupMenuEntry<dynamic>> entries,

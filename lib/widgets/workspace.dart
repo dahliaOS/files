@@ -5,6 +5,7 @@ import 'package:files/backend/entity_info.dart';
 import 'package:files/backend/fetch.dart';
 import 'package:files/backend/path_parts.dart';
 import 'package:files/widgets/breadcrumbs_bar.dart';
+import 'package:files/widgets/context_menu/context_menu.dart';
 import 'package:files/widgets/context_menu/context_menu_entry.dart';
 import 'package:files/widgets/table.dart';
 import 'package:filesize/filesize.dart';
@@ -109,6 +110,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
             ],
             actions: [
               PopupMenuButton<String>(
+                splashRadius: 16,
                 color: Theme.of(context).colorScheme.surface,
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(4)),

@@ -13,6 +13,7 @@ abstract class BaseContextMenuEntry extends PopupMenuEntry<String> {
   /// Typically a [Text] widget.
   final Widget title;
 
+  /// bool flag to block gestures from user
   final bool enabled;
 
   const BaseContextMenuEntry({
