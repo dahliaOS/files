@@ -2,16 +2,16 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:files/backend/utils.dart';
 import 'package:files/backend/entity_info.dart';
-import 'package:files/widgets/context_menu.dart';
+import 'package:files/backend/utils.dart';
+import 'package:files/widgets/context_menu/context_menu.dart';
+import 'package:files/widgets/context_menu/context_menu_entry.dart';
 import 'package:files/widgets/double_scrollbars.dart';
 import 'package:files/widgets/workspace.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:path/path.dart' as p;
 
 typedef HeaderTapCallback = void Function(

@@ -1,5 +1,5 @@
-import 'package:collection/collection.dart';
-import 'package:files/widgets/context_menu.dart';
+import 'package:files/widgets/context_menu/context_menu.dart';
+import 'package:files/widgets/context_menu/context_menu_entry.dart';
 import 'package:files/widgets/workspace.dart';
 import 'package:flutter/material.dart';
 
