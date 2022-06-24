@@ -65,6 +65,16 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     });
   }
 
+  void _createFolder() async {
+    final folderNameDialog = await openDialog();
+    final PathParts currentDir = PathParts.parse(controller.currentDir);
+    currentDir.parts.add('$folderNameDialog');
+    if (folderNameDialog != null) {
+      await Directory(currentDir.toPath()).create(recursive: true);
+      controller.currentDir = currentDir.toPath();
+    }
+  }
+
   void onControllerUpdate() {
     if (mounted) setState(() {});
   }
@@ -129,26 +139,12 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
                     title: const Text('Show hidden files'),
                     onTap: () => _setHidden(!controller.showHidden),
                   ),
+                  ContextMenuEntry(
+                    id: 'createFolder',
+                    title: const Text('Create new folder'),
+                    onTap: () => _createFolder(),
+                  ),
                 ],
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.create_new_folder_outlined,
-                  color: Colors.white,
-                ),
-                tooltip: "New folder",
-                onPressed: () async {
-                  final folderNameDialog = await openDialog();
-                  final PathParts currentDir =
-                      PathParts.parse(controller.currentDir);
-                  currentDir.parts.add('$folderNameDialog');
-                  if (folderNameDialog != null) {
-                    await Directory(currentDir.toPath())
-                        .create(recursive: true);
-                    controller.currentDir = currentDir.toPath();
-                  }
-                },
-                splashRadius: 16,
               ),
             ],
             loadingProgress: controller.loadingProgress,
