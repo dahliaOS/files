@@ -51,47 +51,43 @@ class _SidePaneState extends State<SidePane> {
       width: 304,
       child: Material(
         color: Theme.of(context).colorScheme.surface,
-        child: ListView(
+        child: ListView.builder(
           padding: const EdgeInsets.only(top: 56),
-          children: widget.destinations
-              .mapIndexed(
-                (index, d) => ContextMenu(
-                  entries: [
-                    ContextMenuEntry(
-                      id: 'open',
-                      title: const Text("Open"),
-                      onTap: () => widget.workspace.currentDir =
-                          widget.destinations[index].path,
-                    ),
-                    ContextMenuEntry(
-                      id: 'open_in_new_tab',
-                      title: const Text("Open in new tab"),
-                      onTap: () => widget.onNewTab(widget.destinations[index].path),
-                    ),
-                    ContextMenuEntry(
-                      id: 'open_in_new_window',
-                      title: const Text("Open in new window"),
-                      onTap: () {},
-                    ),
-                  ],
-                  child: ListTile(
-                    dense: true,
-                    leading: Icon(widget.destinations[index].icon),
-                    selected: widget.workspace.currentDir ==
-                        widget.destinations[index].path,
-                    selectedTileColor: Theme.of(context)
-                        .colorScheme
-                        .secondary
-                        .withOpacity(0.1),
-                    title: Text(
-                      widget.destinations[index].label,
-                    ),
-                    onTap: () => widget.workspace.currentDir =
-                        widget.destinations[index].path,
-                  ),
-                ),
-              )
-              .toList(),
+          itemCount: widget.destinations.length,
+          itemBuilder: (context, index) => ContextMenu(
+            entries: [
+              ContextMenuEntry(
+                id: 'open',
+                title: const Text("Open"),
+                onTap: () => widget.workspace.currentDir =
+                    widget.destinations[index].path,
+              ),
+              ContextMenuEntry(
+                id: 'open_in_new_tab',
+                title: const Text("Open in new tab"),
+                onTap: () => widget.onNewTab(widget.destinations[index].path),
+              ),
+              ContextMenuEntry(
+                id: 'open_in_new_window',
+                title: const Text("Open in new window"),
+                onTap: () {},
+                enabled: false,
+              ),
+            ],
+            child: ListTile(
+              dense: true,
+              leading: Icon(widget.destinations[index].icon),
+              selected: widget.workspace.currentDir ==
+                  widget.destinations[index].path,
+              selectedTileColor:
+                  Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+              title: Text(
+                widget.destinations[index].label,
+              ),
+              onTap: () =>
+                  widget.workspace.currentDir = widget.destinations[index].path,
+            ),
+          ),
         ),
       ),
     );

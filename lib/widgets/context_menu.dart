@@ -59,11 +59,14 @@ class ContextSubMenuEntry extends PopupMenuEntry<String> {
   /// They can be [ContextMenuEntry], [ContextMenuDivider], [ContextSubMenuEntry] or any other widgets inherited from PopupMenuEntry.
   final List<PopupMenuEntry> entries;
 
+  final bool enabled;
+
   const ContextSubMenuEntry({
     required this.id,
     this.leading,
     required this.title,
     required this.entries,
+    this.enabled = true,
     Key? key,
   }) : super(key: key);
 
@@ -81,15 +84,18 @@ class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        // Get current render box of the context widget (ContextSubMenuEntry).
-        final RenderBox renderBox = context.findRenderObject() as RenderBox;
-        // Get the position where the submenu should be opened.
-        final Offset offset =
-            renderBox.localToGlobal(Offset(renderBox.size.width + 1, -8));
+      onTap: widget.enabled
+          ? () {
+              // Get current render box of the context widget (ContextSubMenuEntry).
+              final RenderBox renderBox =
+                  context.findRenderObject()! as RenderBox;
+              // Get the position where the submenu should be opened.
+              final Offset offset =
+                  renderBox.localToGlobal(Offset(renderBox.size.width + 1, -8));
 
-        _openContextMenu(context, offset, widget.entries);
-      },
+              _openContextMenu(context, offset, widget.entries);
+            }
+          : null,
       child: Container(
         height: widget.height,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -99,8 +105,12 @@ class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {
               IconTheme.merge(
                 data: IconThemeData(
                   size: 20,
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  color: widget.enabled
+                      ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.3),
                 ),
                 child: widget.leading!,
               ),
@@ -110,8 +120,12 @@ class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {
               child: DefaultTextStyle(
                 style: TextStyle(
                   fontSize: 16,
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  color: widget.enabled
+                      ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.3),
                 ),
                 overflow: TextOverflow.ellipsis,
                 child: widget.title,
@@ -120,7 +134,9 @@ class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {
             IconTheme.merge(
               data: IconThemeData(
                 size: 20,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: widget.enabled
+                    ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
               ),
               child: const Icon(Icons.chevron_right),
             )
@@ -151,12 +167,15 @@ class ContextMenuEntry extends PopupMenuEntry<String> {
   /// Typically a [Text] widget.
   final Widget? shortcut;
 
+  final bool enabled;
+
   const ContextMenuEntry({
     required this.id,
     this.leading,
     required this.title,
     required this.onTap,
     this.shortcut,
+    this.enabled = true,
     Key? key,
   }) : super(key: key);
 
@@ -174,10 +193,12 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        Navigator.pop(context);
-        widget.onTap();
-      },
+      onTap: widget.enabled
+          ? () {
+              Navigator.pop(context);
+              widget.onTap.call();
+            }
+          : null,
       child: Container(
         height: widget.height,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -187,8 +208,12 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
               IconTheme.merge(
                 data: IconThemeData(
                   size: 20,
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  color: widget.enabled
+                      ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.3),
                 ),
                 child: widget.leading!,
               ),
@@ -198,8 +223,12 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
               child: DefaultTextStyle(
                 style: TextStyle(
                   fontSize: 16,
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  color: widget.enabled
+                      ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.3),
                 ),
                 overflow: TextOverflow.ellipsis,
                 child: widget.title,
@@ -209,8 +238,12 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
               DefaultTextStyle(
                 style: TextStyle(
                   fontSize: 16,
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                  color: widget.enabled
+                      ? Theme.of(context).colorScheme.onSurface.withOpacity(0.5)
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.1),
                 ),
                 overflow: TextOverflow.ellipsis,
                 child: widget.shortcut!,

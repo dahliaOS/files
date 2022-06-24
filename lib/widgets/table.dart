@@ -418,6 +418,7 @@ class _FilesRowState extends State<_FilesRow> {
                         title: const Text("Open"),
                         onTap: () {},
                         shortcut: const Text("Return"),
+                        enabled: false,
                       ),
                       ContextMenuEntry(
                         id: 'open_with',
