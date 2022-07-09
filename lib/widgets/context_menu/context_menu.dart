@@ -49,7 +49,7 @@ class ContextMenu extends StatelessWidget {
 void openContextMenu(
   BuildContext context,
   Offset position,
-  List<PopupMenuEntry<dynamic>> entries,
+  List<BaseContextMenuEntry> entries,
 ) {
   final menuTheme = Theme.of(context).extension<ContextMenuTheme>()!;
 

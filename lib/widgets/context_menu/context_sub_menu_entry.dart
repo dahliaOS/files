@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class ContextSubMenuEntry extends BaseContextMenuEntry {
   /// The [entries] are displayed in the order they are provided.
   /// They can be [ContextMenuEntry], [ContextMenuDivider], [ContextSubMenuEntry] or any other widgets inherited from PopupMenuEntry.
-  final List<PopupMenuEntry> entries;
+  final List<BaseContextMenuEntry> entries;
 
   const ContextSubMenuEntry({
     required String id,
