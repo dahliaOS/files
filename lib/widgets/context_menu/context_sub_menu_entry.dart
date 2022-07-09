@@ -1,5 +1,6 @@
 import 'package:files/widgets/context_menu/context_menu.dart';
 import 'package:files/widgets/context_menu/context_menu_entry.dart';
+import 'package:files/widgets/context_menu/context_menu_theme.dart';
 import 'package:flutter/material.dart';
 
 /// [ContextSubMenuEntry] is a [PopupMenuEntry] that displays a submenu with [entries].
@@ -36,6 +37,8 @@ class ContextSubMenuEntry extends BaseContextMenuEntry {
 class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {
   @override
   Widget build(BuildContext context) {
+    final menuTheme = Theme.of(context).extension<ContextMenuTheme>()!;
+
     return InkWell(
       onTap: widget.enabled
           ? () {
@@ -57,13 +60,10 @@ class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {
             if (widget.leading != null) ...[
               IconTheme.merge(
                 data: IconThemeData(
-                  size: 20,
+                  size: menuTheme.iconSize,
                   color: widget.enabled
-                      ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
-                      : Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.3),
+                      ? menuTheme.iconColor
+                      : menuTheme.disabledTextColor,
                 ),
                 child: widget.leading!,
               ),
@@ -72,13 +72,10 @@ class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {
             Expanded(
               child: DefaultTextStyle(
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: menuTheme.fontSize,
                   color: widget.enabled
-                      ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
-                      : Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.3),
+                      ? menuTheme.textColor
+                      : menuTheme.disabledTextColor,
                 ),
                 overflow: TextOverflow.ellipsis,
                 child: widget.title,
@@ -86,10 +83,10 @@ class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {
             ),
             IconTheme.merge(
               data: IconThemeData(
-                size: 20,
+                size: menuTheme.iconSize,
                 color: widget.enabled
-                    ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                    ? menuTheme.iconColor
+                    : menuTheme.disabledTextColor,
               ),
               child: const Icon(Icons.chevron_right),
             )

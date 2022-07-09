@@ -1,3 +1,4 @@
+import 'package:files/widgets/context_menu/context_menu_theme.dart';
 import 'package:files/widgets/context_menu/context_sub_menu_entry.dart';
 import 'package:flutter/material.dart';
 
@@ -63,6 +64,8 @@ class ContextMenuEntry extends BaseContextMenuEntry {
 class _ContextMenuEntryState extends State<ContextMenuEntry> {
   @override
   Widget build(BuildContext context) {
+    final menuTheme = Theme.of(context).extension<ContextMenuTheme>()!;
+
     return InkWell(
       onTap: widget.enabled
           ? () {
@@ -78,13 +81,10 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
             if (widget.leading != null) ...[
               IconTheme.merge(
                 data: IconThemeData(
-                  size: 20,
+                  size: menuTheme.iconSize,
                   color: widget.enabled
-                      ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
-                      : Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.3),
+                      ? menuTheme.iconColor
+                      : menuTheme.disabledTextColor,
                 ),
                 child: widget.leading!,
               ),
@@ -93,13 +93,10 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
             Expanded(
               child: DefaultTextStyle(
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: menuTheme.fontSize,
                   color: widget.enabled
-                      ? Theme.of(context).colorScheme.onSurface.withOpacity(0.7)
-                      : Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.3),
+                      ? menuTheme.textColor
+                      : menuTheme.disabledTextColor,
                 ),
                 overflow: TextOverflow.ellipsis,
                 child: widget.title,
@@ -108,13 +105,10 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
             if (widget.shortcut != null)
               DefaultTextStyle(
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: menuTheme.fontSize,
                   color: widget.enabled
-                      ? Theme.of(context).colorScheme.onSurface.withOpacity(0.5)
-                      : Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.1),
+                      ? menuTheme.shortcutColor
+                      : menuTheme.disabledShortcutColor,
                 ),
                 overflow: TextOverflow.ellipsis,
                 child: widget.shortcut!,

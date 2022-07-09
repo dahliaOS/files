@@ -1,4 +1,5 @@
 import 'package:files/widgets/context_menu/context_menu_entry.dart';
+import 'package:files/widgets/context_menu/context_menu_theme.dart';
 import 'package:flutter/material.dart';
 
 /// [ContextMenu] provides popup menu for the [child] widget and contains [entries].
@@ -50,6 +51,8 @@ void openContextMenu(
   Offset position,
   List<PopupMenuEntry<dynamic>> entries,
 ) {
+  final menuTheme = Theme.of(context).extension<ContextMenuTheme>()!;
+
   showMenu(
     context: context,
     position: RelativeRect.fromLTRB(
@@ -59,7 +62,7 @@ void openContextMenu(
       position.dy,
     ),
     items: entries,
-    color: Theme.of(context).colorScheme.surface,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+    color: menuTheme.backgroundColor,
+    shape: menuTheme.shape,
   );
 }
