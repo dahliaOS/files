@@ -3,10 +3,12 @@ import 'package:files/widgets/context_menu/context_menu_entry.dart';
 import 'package:files/widgets/workspace.dart';
 import 'package:flutter/material.dart';
 
+typedef NewTabCallback = void Function(String);
+
 class SidePane extends StatefulWidget {
   final List<SideDestination> destinations;
   final WorkspaceController workspace;
-  final void Function(String tabPath) onNewTab;
+  final NewTabCallback onNewTab;
 
   const SidePane({
     required this.destinations,
