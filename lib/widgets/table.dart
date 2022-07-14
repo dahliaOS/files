@@ -2,16 +2,16 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:files/backend/utils.dart';
 import 'package:files/backend/entity_info.dart';
-import 'package:files/widgets/context_menu.dart';
+import 'package:files/backend/utils.dart';
+import 'package:files/widgets/context_menu/context_menu.dart';
+import 'package:files/widgets/context_menu/context_menu_entry.dart';
 import 'package:files/widgets/double_scrollbars.dart';
 import 'package:files/widgets/workspace.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:path/path.dart' as p;
 
 typedef HeaderTapCallback = void Function(
@@ -414,21 +414,37 @@ class _FilesRowState extends State<_FilesRow> {
                   child: ContextMenu(
                     entries: [
                       ContextMenuEntry(
-                        id: 'copy',
-                        icon: const Icon(Icons.file_copy_outlined),
-                        text: Text("Copy file"),
+                        id: 'open',
+                        title: const Text("Open"),
                         onTap: () {},
+                        shortcut: const Text("Return"),
+                        enabled: false,
+                      ),
+                      ContextMenuEntry(
+                        id: 'open_with',
+                        title: const Text("Open with other application"),
+                        onTap: () {},
+                      ),
+                      const ContextMenuDivider(),
+                      ContextMenuEntry(
+                        id: 'copy',
+                        leading: const Icon(Icons.file_copy_outlined),
+                        title: const Text("Copy file"),
+                        onTap: () {},
+                        shortcut: const Text("Ctrl+C"),
                       ),
                       ContextMenuEntry(
                         id: 'cut',
-                        icon: const Icon(Icons.cut_outlined),
-                        text: Text("Cut file"),
+                        leading: const Icon(Icons.cut_outlined),
+                        title: const Text("Cut file"),
                         onTap: () {},
+                        shortcut: const Text("Ctrl+X"),
                       ),
                       ContextMenuEntry(
                         id: 'paste',
-                        icon: const Icon(Icons.paste_outlined),
-                        text: Text("Paste file"),
+                        leading: const Icon(Icons.paste_outlined),
+                        title: const Text("Paste file"),
+                        shortcut: const Text("Ctrl+V"),
                         onTap: () {},
                       ),
                     ],

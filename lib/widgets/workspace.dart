@@ -5,6 +5,8 @@ import 'package:files/backend/entity_info.dart';
 import 'package:files/backend/fetch.dart';
 import 'package:files/backend/path_parts.dart';
 import 'package:files/widgets/breadcrumbs_bar.dart';
+import 'package:files/widgets/context_menu/context_menu.dart';
+import 'package:files/widgets/context_menu/context_menu_entry.dart';
 import 'package:files/widgets/table.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
@@ -56,6 +58,23 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     super.dispose();
   }
 
+  void _setHidden(bool flag) {
+    setState(() {
+      controller.showHidden = flag;
+      controller.currentDir = controller.currentDir;
+    });
+  }
+
+  void _createFolder() async {
+    final folderNameDialog = await openDialog();
+    final PathParts currentDir = PathParts.parse(controller.currentDir);
+    currentDir.parts.add('$folderNameDialog');
+    if (folderNameDialog != null) {
+      await Directory(currentDir.toPath()).create(recursive: true);
+      controller.currentDir = currentDir.toPath();
+    }
+  }
+
   void onControllerUpdate() {
     if (mounted) setState(() {});
   }
@@ -101,50 +120,31 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
             ],
             actions: [
               PopupMenuButton<String>(
+                splashRadius: 16,
+                color: Theme.of(context).colorScheme.surface,
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
                 ),
                 offset: const Offset(0, 50),
-                onSelected: (value) {
-                  if (value == 'showHidden') {
-                    controller.showHidden = !controller.showHidden;
-                  }
-                },
                 itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'showHidden',
-                    child: SwitchListTile(
-                      title: const Text('Show hidden files'),
+                  ContextMenuEntry(
+                    id: 'showHidden',
+                    shortcut: Switch(
                       value: controller.showHidden,
-                      onChanged: (value) {
-                        setState(() {
-                          controller.showHidden = value;
-                          controller.currentDir = controller.currentDir;
-                          Navigator.pop(context);
-                        });
+                      onChanged: (flag) {
+                        _setHidden(flag);
+                        Navigator.pop(context);
                       },
                     ),
+                    title: const Text('Show hidden files'),
+                    onTap: () => _setHidden(!controller.showHidden),
+                  ),
+                  ContextMenuEntry(
+                    id: 'createFolder',
+                    title: const Text('Create new folder'),
+                    onTap: () => _createFolder(),
                   ),
                 ],
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.create_new_folder_outlined,
-                  color: Colors.white,
-                ),
-                tooltip: "New folder",
-                onPressed: () async {
-                  final folderNameDialog = await openDialog();
-                  final PathParts currentDir =
-                      PathParts.parse(controller.currentDir);
-                  currentDir.parts.add('$folderNameDialog');
-                  if (folderNameDialog != null) {
-                    await Directory(currentDir.toPath())
-                        .create(recursive: true);
-                    controller.currentDir = currentDir.toPath();
-                  }
-                },
-                splashRadius: 16,
               ),
             ],
             loadingProgress: controller.loadingProgress,
