@@ -64,7 +64,8 @@ class ContextMenuEntry extends BaseContextMenuEntry {
 class _ContextMenuEntryState extends State<ContextMenuEntry> {
   @override
   Widget build(BuildContext context) {
-    final menuTheme = Theme.of(context).extension<ContextMenuTheme>()!;
+    final ContextMenuTheme menuTheme =
+        Theme.of(context).extension<ContextMenuTheme>()!;
 
     return InkWell(
       onTap: widget.enabled
@@ -84,7 +85,7 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
                   size: menuTheme.iconSize,
                   color: widget.enabled
                       ? menuTheme.iconColor
-                      : menuTheme.disabledTextColor,
+                      : menuTheme.disabledIconColor,
                 ),
                 child: widget.leading!,
               ),

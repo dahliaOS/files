@@ -51,7 +51,8 @@ void openContextMenu(
   Offset position,
   List<BaseContextMenuEntry> entries,
 ) {
-  final menuTheme = Theme.of(context).extension<ContextMenuTheme>()!;
+  final ContextMenuTheme menuTheme =
+      Theme.of(context).extension<ContextMenuTheme>()!;
 
   showMenu(
     context: context,
