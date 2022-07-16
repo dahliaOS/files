@@ -17,13 +17,14 @@ import 'package:url_launcher/url_launcher.dart';
 
 enum WorkspaceView { table, grid }
 
+// TODO: make StatlessWidget with ChangeNotifierProvider
 class FilesWorkspace extends StatefulWidget {
   final WorkspaceController controller;
   WorkspaceView view;
 
   FilesWorkspace({
     required this.controller,
-    this.view = WorkspaceView.table,
+    this.view = WorkspaceView.grid,
     Key? key,
   }) : super(key: key);
 
@@ -56,9 +57,11 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
   void initState() {
     super.initState();
     horizontalController = CachingScrollController(
-        initialScrollOffset: controller.lastHorizontalScrollOffset);
+      initialScrollOffset: controller.lastHorizontalScrollOffset,
+    );
     verticalController = CachingScrollController(
-        initialScrollOffset: controller.lastVerticalScrollOffset);
+      initialScrollOffset: controller.lastVerticalScrollOffset,
+    );
     textController = TextEditingController();
     controller.addListener(onControllerUpdate);
   }
@@ -280,7 +283,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     return baseString;
   }
 
-  void _onFileTap(EntityInfo entity) {
+  void _onEntityTap(EntityInfo entity) {
     final bool selected = controller.selectedItems.contains(entity);
     final Set<LogicalKeyboardKey> keysPressed =
         RawKeyboard.instance.keysPressed;
@@ -303,7 +306,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     setState(() {});
   }
 
-  void _onFileDoubleTap(EntityInfo entity) {
+  void _onEntityDoubleTap(EntityInfo entity) {
     if (entity.isDirectory) {
       controller.currentDir = entity.path;
     } else {
@@ -319,19 +322,12 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
             switch (widget.view) {
               case WorkspaceView.grid:
                 return FilesGrid(
-                  entities: controller.currentInfo!
-                      .map(
-                        (entity) => EntityCell(
-                          entity: entity,
-                          selected: controller.selectedItems.contains(entity),
-                          onTap: () => _onFileTap(entity),
-                          onDoubleTap: () => _onFileDoubleTap(entity),
-                        ),
-                      )
-                      .toList(),
-                  verticalController: verticalController,
+                  entities: controller.currentInfo!,
+                  onEntityTap: (index) =>
+                      _onEntityTap(controller.currentInfo![index]),
+                  onEntityDoubleTap: (index) =>
+                      _onEntityDoubleTap(controller.currentInfo![index]),
                 );
-
               default:
                 return FilesTable(
                   rows: controller.currentInfo!
@@ -339,8 +335,8 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
                         (entity) => FilesRow(
                           entity: entity,
                           selected: controller.selectedItems.contains(entity),
-                          onTap: () => _onFileTap(entity),
-                          onDoubleTap: () => _onFileDoubleTap(entity),
+                          onTap: () => _onEntityTap(entity),
+                          onDoubleTap: () => _onEntityDoubleTap(entity),
                         ),
                       )
                       .toList(),
