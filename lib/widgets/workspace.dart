@@ -14,11 +14,15 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+enum WorkspaceView { table, grid }
+
 class FilesWorkspace extends StatefulWidget {
   final WorkspaceController controller;
+  WorkspaceView view;
 
-  const FilesWorkspace({
+  FilesWorkspace({
     required this.controller,
+    this.view = WorkspaceView.table,
     Key? key,
   }) : super(key: key);
 
@@ -35,6 +39,17 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
   WorkspaceController get controller => widget.controller;
 
   String folderName = ' ';
+
+  IconData get viewIcon {
+    switch (widget.view) {
+      case WorkspaceView.table:
+        return Icons.list_outlined;
+      case WorkspaceView.grid:
+        return Icons.grid_view_outlined;
+      default:
+        return Icons.list_outlined;
+    }
+  }
 
   @override
   void initState() {
@@ -119,6 +134,28 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
               ),
             ],
             actions: [
+              IconButton(
+                icon: Icon(
+                  viewIcon,
+                  size: 18,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  setState(() {
+                    switch (widget.view) {
+                      case WorkspaceView.table:
+                        widget.view = WorkspaceView.grid;
+                        break;
+                      case WorkspaceView.grid:
+                        widget.view = WorkspaceView.table;
+                        break;
+                      default:
+                        break;
+                    }
+                  });
+                },
+                splashRadius: 16,
+              ),
               PopupMenuButton<String>(
                 splashRadius: 16,
                 color: Theme.of(context).colorScheme.surface,
