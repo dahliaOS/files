@@ -7,6 +7,7 @@ import 'package:files/backend/path_parts.dart';
 import 'package:files/widgets/breadcrumbs_bar.dart';
 import 'package:files/widgets/context_menu/context_menu.dart';
 import 'package:files/widgets/context_menu/context_menu_entry.dart';
+import 'package:files/widgets/grid.dart';
 import 'package:files/widgets/table.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
@@ -279,89 +280,110 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     return baseString;
   }
 
+  void _onFileTap(EntityInfo entity) {
+    final bool selected = controller.selectedItems.contains(entity);
+    final Set<LogicalKeyboardKey> keysPressed =
+        RawKeyboard.instance.keysPressed;
+    final bool multiSelect = keysPressed.contains(
+          LogicalKeyboardKey.controlLeft,
+        ) ||
+        keysPressed.contains(
+          LogicalKeyboardKey.controlRight,
+        );
+
+    if (!multiSelect) controller.clearSelectedItems();
+
+    if (!selected && multiSelect) {
+      controller.addSelectedItem(entity);
+    } else if (selected && multiSelect) {
+      controller.removeSelectedItem(entity);
+    } else {
+      controller.addSelectedItem(entity);
+    }
+    setState(() {});
+  }
+
+  void _onFileDoubleTap(EntityInfo entity) {
+    if (entity.isDirectory) {
+      controller.currentDir = entity.path;
+    } else {
+      launch(entity.path);
+    }
+  }
+
   Widget get body {
     return Builder(
       builder: (context) {
         if (controller.currentInfo != null) {
           if (controller.currentInfo!.isNotEmpty) {
-            return FilesTable(
-              rows: controller.currentInfo!
-                  .map(
-                    (entity) => FilesRow(
-                      entity: entity,
-                      selected: controller.selectedItems.contains(entity),
-                      onTap: () {
-                        bool selected =
-                            controller.selectedItems.contains(entity);
-                        final Set<LogicalKeyboardKey> keysPressed =
-                            RawKeyboard.instance.keysPressed;
-                        final bool multiSelect = keysPressed.contains(
-                              LogicalKeyboardKey.controlLeft,
-                            ) ||
-                            keysPressed.contains(
-                              LogicalKeyboardKey.controlRight,
-                            );
-
-                        if (!multiSelect) controller.clearSelectedItems();
-
-                        if (!selected && multiSelect) {
-                          controller.addSelectedItem(entity);
-                        } else if (selected && multiSelect) {
-                          controller.removeSelectedItem(entity);
-                        } else {
-                          controller.addSelectedItem(entity);
-                        }
-                        setState(() {});
-                      },
-                      onDoubleTap: () {
-                        if (entity.isDirectory) {
-                          controller.currentDir = entity.path;
-                        } else {
-                          launch(entity.path);
-                        }
-                      },
-                    ),
-                  )
-                  .toList(),
-              columns: [
-                FilesColumn(
-                  width: controller.columnWidths[0],
-                  type: FilesColumnType.name,
-                ),
-                FilesColumn(
-                  width: controller.columnWidths[1],
-                  type: FilesColumnType.date,
-                ),
-                FilesColumn(
-                  width: controller.columnWidths[2],
-                  type: FilesColumnType.type,
-                  allowSorting: false,
-                ),
-                FilesColumn(
-                  width: controller.columnWidths[3],
-                  type: FilesColumnType.size,
-                ),
-              ],
-              ascending: controller.ascending,
-              columnIndex: controller.columnIndex,
-              onHeaderCellTap: (newAscending, newColumnIndex) {
-                if (controller.columnIndex == newColumnIndex) {
-                  controller.ascending = newAscending;
-                } else {
-                  controller.ascending = true;
-                  controller.columnIndex = newColumnIndex;
-                }
-                controller.changeCurrentDir(controller.currentDir);
-              },
-              onHeaderResize: (newColumnIndex, details) {
-                controller.addToColumnWidth(
-                  newColumnIndex,
-                  details.primaryDelta!,
+            switch (widget.view) {
+              case WorkspaceView.grid:
+                return FilesGrid(
+                  entities: controller.currentInfo!
+                      .map(
+                        (entity) => EntityCell(
+                          entity: entity,
+                          selected: controller.selectedItems.contains(entity),
+                          onTap: () => _onFileTap(entity),
+                          onDoubleTap: () => _onFileDoubleTap(entity),
+                        ),
+                      )
+                      .toList(),
+                  verticalController: verticalController,
                 );
-              },
-              horizontalController: horizontalController,
-              verticalController: verticalController,
-            );
+
+              default:
+                return FilesTable(
+                  rows: controller.currentInfo!
+                      .map(
+                        (entity) => FilesRow(
+                          entity: entity,
+                          selected: controller.selectedItems.contains(entity),
+                          onTap: () => _onFileTap(entity),
+                          onDoubleTap: () => _onFileDoubleTap(entity),
+                        ),
+                      )
+                      .toList(),
+                  columns: [
+                    FilesColumn(
+                      width: controller.columnWidths[0],
+                      type: FilesColumnType.name,
+                    ),
+                    FilesColumn(
+                      width: controller.columnWidths[1],
+                      type: FilesColumnType.date,
+                    ),
+                    FilesColumn(
+                      width: controller.columnWidths[2],
+                      type: FilesColumnType.type,
+                      allowSorting: false,
+                    ),
+                    FilesColumn(
+                      width: controller.columnWidths[3],
+                      type: FilesColumnType.size,
+                    ),
+                  ],
+                  ascending: controller.ascending,
+                  columnIndex: controller.columnIndex,
+                  onHeaderCellTap: (newAscending, newColumnIndex) {
+                    if (controller.columnIndex == newColumnIndex) {
+                      controller.ascending = newAscending;
+                    } else {
+                      controller.ascending = true;
+                      controller.columnIndex = newColumnIndex;
+                    }
+                    controller.changeCurrentDir(controller.currentDir);
+                  },
+                  onHeaderResize: (newColumnIndex, details) {
+                    controller.addToColumnWidth(
+                      newColumnIndex,
+                      details.primaryDelta!,
+                    );
+                  },
+                  horizontalController: horizontalController,
+                  verticalController: verticalController,
+                );
+            }
           } else {
             return Center(
               child: Column(
@@ -389,6 +411,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
   }
 }
 
+// TODO: create enum SortType for FilesGrid
 class WorkspaceController with ChangeNotifier {
   WorkspaceController({required String initialDir}) {
     currentDir = initialDir;
