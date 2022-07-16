@@ -416,14 +416,17 @@ class _FilesRowState extends State<_FilesRow> {
                       ContextMenuEntry(
                         id: 'open',
                         title: const Text("Open"),
-                        onTap: () {},
+                        onTap: () {
+                          widget.row.onTap?.call();
+                          widget.row.onDoubleTap?.call();
+                        },
                         shortcut: const Text("Return"),
-                        enabled: false,
                       ),
                       ContextMenuEntry(
                         id: 'open_with',
                         title: const Text("Open with other application"),
                         onTap: () {},
+                        enabled: false,
                       ),
                       const ContextMenuDivider(),
                       ContextMenuEntry(

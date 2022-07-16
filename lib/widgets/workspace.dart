@@ -5,7 +5,6 @@ import 'package:files/backend/entity_info.dart';
 import 'package:files/backend/fetch.dart';
 import 'package:files/backend/path_parts.dart';
 import 'package:files/widgets/breadcrumbs_bar.dart';
-import 'package:files/widgets/context_menu/context_menu.dart';
 import 'package:files/widgets/context_menu/context_menu_entry.dart';
 import 'package:files/widgets/grid.dart';
 import 'package:files/widgets/table.dart';
@@ -20,7 +19,7 @@ enum WorkspaceView { table, grid }
 // TODO: make StatlessWidget with ChangeNotifierProvider
 class FilesWorkspace extends StatefulWidget {
   final WorkspaceController controller;
-  WorkspaceView view;
+  WorkspaceView view; // save on SharedPreferences?
 
   FilesWorkspace({
     required this.controller,

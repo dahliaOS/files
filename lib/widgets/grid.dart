@@ -101,67 +101,77 @@ class FileCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: selected
-          ? Theme.of(context).colorScheme.secondary.withOpacity(0.2)
-          : Colors.transparent,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        onDoubleTap: () {
-          onTap?.call();
-          onDoubleTap?.call();
-        },
-        onLongPress: onLongTap,
-        child: ContextMenu(
-          entries: [
-            ContextMenuEntry(
-              id: 'open',
-              title: const Text("Open"),
-              onTap: () {
-                onTap?.call();
-                onDoubleTap?.call();
-              },
-              shortcut: const Text("Return"),
-            ),
-            ContextMenuEntry(
-              id: 'open_with',
-              title: const Text("Open with other application"),
-              onTap: () {},
-              enabled: false,
-            ),
-            const ContextMenuDivider(),
-            ContextMenuEntry(
-              id: 'copy',
-              leading: const Icon(Icons.file_copy_outlined),
-              title: const Text("Copy file"),
-              onTap: () {},
-              shortcut: const Text("Ctrl+C"),
-            ),
-            ContextMenuEntry(
-              id: 'cut',
-              leading: const Icon(Icons.cut_outlined),
-              title: const Text("Cut file"),
-              onTap: () {},
-              shortcut: const Text("Ctrl+X"),
-            ),
-            ContextMenuEntry(
-              id: 'paste',
-              leading: const Icon(Icons.paste_outlined),
-              title: const Text("Paste file"),
-              shortcut: const Text("Ctrl+V"),
-              onTap: () {},
-            )
-          ],
-          child: Center(
-            child: Cell(
-              name: Utils.getEntityName(entity.path),
-              icon: entity.isDirectory
-                  ? Icons.folder
-                  : Utils.iconForPath(entity.path),
-              iconColor: entity.isDirectory
-                  ? Theme.of(context).colorScheme.secondary
-                  : null,
+    return DragTarget<FileSystemEntity>(
+      onWillAccept: (data) {
+        if (!entity.isDirectory) return false;
+
+        if (data!.path == entity.path) return false;
+
+        return true;
+      },
+      onAccept: (data) => Utils.moveFileToDest(data, entity.path),
+      builder: (context, candidateData, rejectedData) => Material(
+        color: selected
+            ? Theme.of(context).colorScheme.secondary.withOpacity(0.2)
+            : Theme.of(context).colorScheme.surface,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          onDoubleTap: () {
+            onTap?.call();
+            onDoubleTap?.call();
+          },
+          onLongPress: onLongTap,
+          child: ContextMenu(
+            entries: [
+              ContextMenuEntry(
+                id: 'open',
+                title: const Text("Open"),
+                onTap: () {
+                  onTap?.call();
+                  onDoubleTap?.call();
+                },
+                shortcut: const Text("Return"),
+              ),
+              ContextMenuEntry(
+                id: 'open_with',
+                title: const Text("Open with other application"),
+                onTap: () {},
+                enabled: false,
+              ),
+              const ContextMenuDivider(),
+              ContextMenuEntry(
+                id: 'copy',
+                leading: const Icon(Icons.file_copy_outlined),
+                title: const Text("Copy file"),
+                onTap: () {},
+                shortcut: const Text("Ctrl+C"),
+              ),
+              ContextMenuEntry(
+                id: 'cut',
+                leading: const Icon(Icons.cut_outlined),
+                title: const Text("Cut file"),
+                onTap: () {},
+                shortcut: const Text("Ctrl+X"),
+              ),
+              ContextMenuEntry(
+                id: 'paste',
+                leading: const Icon(Icons.paste_outlined),
+                title: const Text("Paste file"),
+                shortcut: const Text("Ctrl+V"),
+                onTap: () {},
+              )
+            ],
+            child: Center(
+              child: Cell(
+                name: Utils.getEntityName(entity.path),
+                icon: entity.isDirectory
+                    ? Icons.folder
+                    : Utils.iconForPath(entity.path),
+                iconColor: entity.isDirectory
+                    ? Theme.of(context).colorScheme.secondary
+                    : null,
+              ),
             ),
           ),
         ),
@@ -196,6 +206,8 @@ class Cell extends StatelessWidget {
         Text(
           name,
           overflow: TextOverflow.ellipsis,
+          maxLines: 2,
+          textAlign: TextAlign.center,
         ),
       ],
     );
