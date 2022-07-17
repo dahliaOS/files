@@ -42,6 +42,7 @@ class FilesGrid extends StatelessWidget {
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
             maxCrossAxisExtent: size,
+            mainAxisExtent: size,
             mainAxisSpacing: 16.0,
             crossAxisSpacing: 16.0,
           ),
@@ -51,19 +52,26 @@ class FilesGrid extends StatelessWidget {
           itemBuilder: (context, index) => Draggable<FileSystemEntity>(
             data: entities[index].entity,
             dragAnchorStrategy: (_, __, ___) => const Offset(32, 32),
-            feedback: Material(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-              ),
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
-              child: Cell(
-                name: Utils.getEntityName(entities[index].path),
-                icon: entities[index].isDirectory
-                    ? Icons.folder
-                    : Utils.iconForPath(entities[index].path),
-                iconColor: entities[index].isDirectory
-                    ? Theme.of(context).colorScheme.secondary
-                    : null,
+            feedback: SizedBox(
+              width: size,
+              height: size,
+              child: Container(
+                decoration: BoxDecoration(
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Center(
+                  child: Cell(
+                    name: Utils.getEntityName(entities[index].path),
+                    icon: entities[index].isDirectory
+                        ? Icons.folder
+                        : Utils.iconForPath(entities[index].path),
+                    iconColor: entities[index].isDirectory
+                        ? Theme.of(context).colorScheme.secondary
+                        : null,
+                  ),
+                ),
               ),
             ),
             child: FileCell(
@@ -110,11 +118,14 @@ class FileCell extends StatelessWidget {
         return true;
       },
       onAccept: (data) => Utils.moveFileToDest(data, entity.path),
-      builder: (context, candidateData, rejectedData) => Material(
-        color: selected
-            ? Theme.of(context).colorScheme.secondary.withOpacity(0.2)
-            : Theme.of(context).colorScheme.surface,
+      builder: (context, _, __) => Container(
         clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: selected
+              ? Theme.of(context).colorScheme.secondary.withOpacity(0.2)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(4),
+        ),
         child: InkWell(
           onTap: onTap,
           onDoubleTap: () {
@@ -203,11 +214,12 @@ class Cell extends StatelessWidget {
           size: 64,
         ),
         const SizedBox(width: 16),
-        Text(
-          name,
+        DefaultTextStyle(
+          style: const TextStyle(fontSize: 14),
           overflow: TextOverflow.ellipsis,
           maxLines: 2,
           textAlign: TextAlign.center,
+          child: Text(name),
         ),
       ],
     );
