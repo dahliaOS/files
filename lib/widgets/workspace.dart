@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:files/backend/entity_info.dart';
 import 'package:files/backend/fetch.dart';
 import 'package:files/backend/path_parts.dart';
+import 'package:files/backend/utils.dart';
 import 'package:files/widgets/breadcrumbs_bar.dart';
 import 'package:files/widgets/context_menu/context_menu_entry.dart';
 import 'package:files/widgets/grid.dart';
@@ -313,6 +314,13 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     }
   }
 
+  // For move more than one file
+  void _onDropAccepted(String path) {
+    for (final entity in controller.selectedItems) {
+      Utils.moveFileToDest(entity.entity, path);
+    }
+  }
+
   Widget get body {
     return Builder(
       builder: (context) {
@@ -322,10 +330,9 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
               case WorkspaceView.grid:
                 return FilesGrid(
                   entities: controller.currentInfo!,
-                  onEntityTap: (index) =>
-                      _onEntityTap(controller.currentInfo![index]),
-                  onEntityDoubleTap: (index) =>
-                      _onEntityDoubleTap(controller.currentInfo![index]),
+                  onEntityTap: _onEntityTap,
+                  onEntityDoubleTap: _onEntityDoubleTap,
+                  onDropAccept: _onDropAccepted,
                 );
               default:
                 return FilesTable(

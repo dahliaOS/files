@@ -7,17 +7,16 @@ import 'package:files/widgets/context_menu/context_menu_entry.dart';
 import 'package:files/widgets/workspace.dart';
 import 'package:flutter/material.dart';
 
-typedef EntityTapCallback = void Function(int index);
-typedef EntityDoubleTapCallback = void Function(int index);
-typedef EntityLongTapCallback = void Function(int index);
-typedef EntitySecondaryTapCallback = void Function(int index);
+typedef EntityCallback = void Function(EntityInfo entity);
+typedef DropAcceptTapCallback = void Function(String path);
 
 class FilesGrid extends StatelessWidget {
   final List<EntityInfo> entities;
-  final EntityTapCallback? onEntityTap;
-  final EntityDoubleTapCallback? onEntityDoubleTap;
-  final EntityLongTapCallback? onEntityLongTap;
-  final EntitySecondaryTapCallback? onEntitySecondaryTap;
+  final EntityCallback? onEntityTap;
+  final EntityCallback? onEntityDoubleTap;
+  final EntityCallback? onEntityLongTap;
+  final EntityCallback? onEntitySecondaryTap;
+  final DropAcceptTapCallback? onDropAccept;
   final double size;
 
   const FilesGrid({
@@ -26,6 +25,7 @@ class FilesGrid extends StatelessWidget {
     this.onEntityDoubleTap,
     this.onEntityLongTap,
     this.onEntitySecondaryTap,
+    this.onDropAccept,
     this.size = 96,
     Key? key,
   }) : super(key: key);
@@ -77,10 +77,11 @@ class FilesGrid extends StatelessWidget {
             child: FileCell(
               entity: entities[index],
               selected: controller.selectedItems.contains(entities[index]),
-              onTap: () => onEntityTap?.call(index),
-              onDoubleTap: () => onEntityDoubleTap?.call(index),
-              onLongTap: () => onEntityLongTap?.call(index),
-              onSecondaryTap: () => onEntitySecondaryTap?.call(index),
+              onTap: onEntityTap,
+              onDoubleTap: onEntityDoubleTap,
+              onLongTap: onEntityLongTap,
+              onSecondaryTap: onEntitySecondaryTap,
+              onDropAccept: onDropAccept,
             ),
           ),
         ),
@@ -92,10 +93,11 @@ class FilesGrid extends StatelessWidget {
 class FileCell extends StatelessWidget {
   final EntityInfo entity;
   final bool selected;
-  final VoidCallback? onTap;
-  final VoidCallback? onDoubleTap;
-  final VoidCallback? onLongTap;
-  final VoidCallback? onSecondaryTap;
+  final EntityCallback? onTap;
+  final EntityCallback? onDoubleTap;
+  final EntityCallback? onLongTap;
+  final EntityCallback? onSecondaryTap;
+  final DropAcceptTapCallback? onDropAccept;
 
   const FileCell({
     required this.entity,
@@ -104,6 +106,7 @@ class FileCell extends StatelessWidget {
     this.onDoubleTap,
     this.onLongTap,
     this.onSecondaryTap,
+    this.onDropAccept,
     Key? key,
   }) : super(key: key);
 
@@ -117,7 +120,7 @@ class FileCell extends StatelessWidget {
 
         return true;
       },
-      onAccept: (data) => Utils.moveFileToDest(data, entity.path),
+      onAccept: (_) => onDropAccept?.call(entity.path),
       builder: (context, _, __) => Container(
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
@@ -127,20 +130,20 @@ class FileCell extends StatelessWidget {
           borderRadius: BorderRadius.circular(4),
         ),
         child: InkWell(
-          onTap: onTap,
+          onTap: () => onTap?.call(entity),
           onDoubleTap: () {
-            onTap?.call();
-            onDoubleTap?.call();
+            onTap?.call(entity);
+            onDoubleTap?.call(entity);
           },
-          onLongPress: onLongTap,
+          onLongPress: () => onLongTap?.call(entity),
           child: ContextMenu(
             entries: [
               ContextMenuEntry(
                 id: 'open',
                 title: const Text("Open"),
                 onTap: () {
-                  onTap?.call();
-                  onDoubleTap?.call();
+                  onTap?.call(entity);
+                  onDoubleTap?.call(entity);
                 },
                 shortcut: const Text("Return"),
               ),
