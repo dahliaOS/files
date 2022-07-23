@@ -6,6 +6,13 @@ import 'package:files/backend/providers.dart';
 import 'package:files/backend/utils.dart';
 import 'package:flutter/foundation.dart';
 
+enum SortType {
+  name,
+  modified,
+  type,
+  size,
+}
+
 class CancelableFsFetch {
   final Directory directory;
   final ValueChanged<List<EntityInfo>?> onFetched;

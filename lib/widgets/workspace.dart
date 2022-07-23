@@ -84,6 +84,14 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     });
   }
 
+  void _setSortType(SortType? type) {
+    setState(() {
+      if (type != null) {
+        controller.sortType = type;
+      }
+    });
+  }
+
   void _createFolder() async {
     final folderNameDialog = await openDialog();
     final PathParts currentDir = PathParts.parse(controller.currentDir);
@@ -184,6 +192,58 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
                     id: 'createFolder',
                     title: const Text('Create new folder'),
                     onTap: () => _createFolder(),
+                  ),
+                  if (widget.view == WorkspaceView.grid) ...[
+                    const ContextMenuDivider(),
+                    ContextMenuEntry(
+                      id: 'name',
+                      title: const Text('Name'),
+                      onTap: () => _setSortType(SortType.name),
+                      shortcut: Radio<SortType>(
+                        value: SortType.name,
+                        groupValue: controller.sortType,
+                        onChanged: _setSortType,
+                      ),
+                    ),
+                    ContextMenuEntry(
+                      id: 'modifies',
+                      title: const Text('Modifies'),
+                      onTap: () => _setSortType(SortType.modified),
+                      shortcut: Radio<SortType>(
+                        value: SortType.modified,
+                        groupValue: controller.sortType,
+                        onChanged: _setSortType,
+                      ),
+                    ),
+                    ContextMenuEntry(
+                      id: 'size',
+                      title: const Text('Size'),
+                      onTap: () => _setSortType(SortType.size),
+                      shortcut: Radio<SortType>(
+                        value: SortType.size,
+                        groupValue: controller.sortType,
+                        onChanged: _setSortType,
+                      ),
+                    ),
+                    ContextMenuEntry(
+                      id: 'type',
+                      title: const Text('Type'),
+                      onTap: () => _setSortType(SortType.type),
+                      shortcut: Radio<SortType>(
+                        value: SortType.type,
+                        groupValue: controller.sortType,
+                        onChanged: _setSortType,
+                      ),
+                    ),
+                    const ContextMenuDivider(),
+                  ],
+                  ContextMenuEntry(
+                    id: 'reload',
+                    title: const Text('Reload'),
+                    onTap: () async {
+                      await controller
+                          .getInfoForDir(Directory(controller.currentDir));
+                    },
                   ),
                 ],
               ),
@@ -413,7 +473,6 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
   }
 }
 
-// TODO: create enum SortType for FilesGrid
 class WorkspaceController with ChangeNotifier {
   WorkspaceController({required String initialDir}) {
     currentDir = initialDir;
@@ -426,6 +485,7 @@ class WorkspaceController with ChangeNotifier {
   bool _ascending = true;
   bool _showHidden = false;
   int _columnIndex = 0;
+  SortType _sortType = SortType.name;
   final List<EntityInfo> _selectedItems = [];
   List<EntityInfo>? _currentInfo;
   double? _loadingProgress;
@@ -483,6 +543,12 @@ class WorkspaceController with ChangeNotifier {
   int get columnIndex => _columnIndex;
   set columnIndex(int value) {
     _columnIndex = value;
+    notifyListeners();
+  }
+
+  SortType get sortType => _sortType;
+  set sortType(SortType value) {
+    _sortType = value;
     notifyListeners();
   }
 

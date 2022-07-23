@@ -8,7 +8,7 @@ import 'package:files/widgets/workspace.dart';
 import 'package:flutter/material.dart';
 
 typedef EntityCallback = void Function(EntityInfo entity);
-typedef DropAcceptTapCallback = void Function(String path);
+typedef DropAcceptCallback = void Function(String path);
 
 class FilesGrid extends StatelessWidget {
   final List<EntityInfo> entities;
@@ -16,7 +16,7 @@ class FilesGrid extends StatelessWidget {
   final EntityCallback? onEntityDoubleTap;
   final EntityCallback? onEntityLongTap;
   final EntityCallback? onEntitySecondaryTap;
-  final DropAcceptTapCallback? onDropAccept;
+  final DropAcceptCallback? onDropAccept;
   final double size;
 
   const FilesGrid({
@@ -97,7 +97,7 @@ class FileCell extends StatelessWidget {
   final EntityCallback? onDoubleTap;
   final EntityCallback? onLongTap;
   final EntityCallback? onSecondaryTap;
-  final DropAcceptTapCallback? onDropAccept;
+  final DropAcceptCallback? onDropAccept;
 
   const FileCell({
     required this.entity,
