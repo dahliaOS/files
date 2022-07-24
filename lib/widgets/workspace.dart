@@ -88,6 +88,17 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     setState(() {
       if (type != null) {
         controller.sortType = type;
+        controller.columnIndex = type.index;
+        controller.changeCurrentDir(controller.currentDir);
+      }
+    });
+  }
+
+  void _setSortOrder(bool ascending) {
+    setState(() {
+      if (ascending != controller.ascending) {
+        controller.ascending = ascending;
+        controller.changeCurrentDir(controller.currentDir);
       }
     });
   }
@@ -202,7 +213,10 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
                       shortcut: Radio<SortType>(
                         value: SortType.name,
                         groupValue: controller.sortType,
-                        onChanged: _setSortType,
+                        onChanged: (SortType? type) {
+                          _setSortType(type);
+                          Navigator.pop(context);
+                        },
                       ),
                     ),
                     ContextMenuEntry(
@@ -212,7 +226,10 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
                       shortcut: Radio<SortType>(
                         value: SortType.modified,
                         groupValue: controller.sortType,
-                        onChanged: _setSortType,
+                        onChanged: (SortType? type) {
+                          _setSortType(type);
+                          Navigator.pop(context);
+                        },
                       ),
                     ),
                     ContextMenuEntry(
@@ -222,7 +239,10 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
                       shortcut: Radio<SortType>(
                         value: SortType.size,
                         groupValue: controller.sortType,
-                        onChanged: _setSortType,
+                        onChanged: (SortType? type) {
+                          _setSortType(type);
+                          Navigator.pop(context);
+                        },
                       ),
                     ),
                     ContextMenuEntry(
@@ -232,8 +252,26 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
                       shortcut: Radio<SortType>(
                         value: SortType.type,
                         groupValue: controller.sortType,
-                        onChanged: _setSortType,
+                        onChanged: (SortType? type) {
+                          _setSortType(type);
+                          Navigator.pop(context);
+                        },
                       ),
+                    ),
+                    const ContextMenuDivider(),
+                    ContextMenuEntry(
+                      id: 'ascending',
+                      title: const Text('Ascending'),
+                      onTap: () => _setSortOrder(true),
+                      leading:
+                          controller.ascending ? const Icon(Icons.check) : null,
+                    ),
+                    ContextMenuEntry(
+                      id: 'descending',
+                      title: const Text('Descending'),
+                      onTap: () => _setSortOrder(false),
+                      leading:
+                          controller.ascending ? null : const Icon(Icons.check),
                     ),
                     const ContextMenuDivider(),
                   ],
