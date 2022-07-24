@@ -15,16 +15,11 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-enum WorkspaceView { table, grid }
-
-// TODO: make StatlessWidget with ChangeNotifierProvider
 class FilesWorkspace extends StatefulWidget {
   final WorkspaceController controller;
-  WorkspaceView view; // save on SharedPreferences?
 
-  FilesWorkspace({
+  const FilesWorkspace({
     required this.controller,
-    this.view = WorkspaceView.grid,
     Key? key,
   }) : super(key: key);
 
@@ -43,7 +38,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
   String folderName = ' ';
 
   IconData get viewIcon {
-    switch (widget.view) {
+    switch (controller.view) {
       case WorkspaceView.table:
         return Icons.list_outlined;
       case WorkspaceView.grid:
@@ -115,12 +110,12 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
 
   void _switchWorkspaceView() {
     setState(() {
-      switch (widget.view) {
+      switch (controller.view) {
         case WorkspaceView.table:
-          widget.view = WorkspaceView.grid;
+          controller.view = WorkspaceView.grid;
           break;
         case WorkspaceView.grid:
-          widget.view = WorkspaceView.table;
+          controller.view = WorkspaceView.table;
           break;
         default:
           break;
@@ -206,7 +201,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
                     title: const Text('Create new folder'),
                     onTap: () => _createFolder(),
                   ),
-                  if (widget.view == WorkspaceView.grid) ...[
+                  if (controller.view == WorkspaceView.grid) ...[
                     const ContextMenuDivider(),
                     ContextMenuEntry(
                       id: 'name',
@@ -426,7 +421,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
       builder: (context) {
         if (controller.currentInfo != null) {
           if (controller.currentInfo!.isNotEmpty) {
-            switch (widget.view) {
+            switch (controller.view) {
               case WorkspaceView.grid:
                 return FilesGrid(
                   entities: controller.currentInfo!,
@@ -513,6 +508,8 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
   }
 }
 
+enum WorkspaceView { table, grid }
+
 class WorkspaceController with ChangeNotifier {
   WorkspaceController({required String initialDir}) {
     currentDir = initialDir;
@@ -531,6 +528,7 @@ class WorkspaceController with ChangeNotifier {
   double? _loadingProgress;
   CancelableFsFetch? _fetcher;
   StreamSubscription<FileSystemEvent>? directoryStream;
+  WorkspaceView _view = WorkspaceView.table; // save on SharedPreferences?
 
   Future<void> getInfoForDir(Directory dir) async {
     await _fetcher?.cancel();
@@ -589,6 +587,12 @@ class WorkspaceController with ChangeNotifier {
   SortType get sortType => _sortType;
   set sortType(SortType value) {
     _sortType = value;
+    notifyListeners();
+  }
+
+  WorkspaceView get view => _view;
+  set view(WorkspaceView value) {
+    _view = value;
     notifyListeners();
   }
 
