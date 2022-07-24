@@ -4,9 +4,8 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:files/backend/entity_info.dart';
 import 'package:files/backend/utils.dart';
-import 'package:files/widgets/context_menu/context_menu.dart';
-import 'package:files/widgets/context_menu/context_menu_entry.dart';
 import 'package:files/widgets/double_scrollbars.dart';
+import 'package:files/widgets/entity_context_menu.dart';
 import 'package:files/widgets/workspace.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
@@ -411,46 +410,11 @@ class _FilesRowState extends State<_FilesRow> {
                     }
                   },
                   onLongPress: widget.row.onLongTap,
-                  child: ContextMenu(
-                    entries: [
-                      ContextMenuEntry(
-                        id: 'open',
-                        title: const Text("Open"),
-                        onTap: () {
-                          widget.row.onTap?.call();
-                          widget.row.onDoubleTap?.call();
-                        },
-                        shortcut: const Text("Return"),
-                      ),
-                      ContextMenuEntry(
-                        id: 'open_with',
-                        title: const Text("Open with other application"),
-                        onTap: () {},
-                        enabled: false,
-                      ),
-                      const ContextMenuDivider(),
-                      ContextMenuEntry(
-                        id: 'copy',
-                        leading: const Icon(Icons.file_copy_outlined),
-                        title: const Text("Copy file"),
-                        onTap: () {},
-                        shortcut: const Text("Ctrl+C"),
-                      ),
-                      ContextMenuEntry(
-                        id: 'cut',
-                        leading: const Icon(Icons.cut_outlined),
-                        title: const Text("Cut file"),
-                        onTap: () {},
-                        shortcut: const Text("Ctrl+X"),
-                      ),
-                      ContextMenuEntry(
-                        id: 'paste',
-                        leading: const Icon(Icons.paste_outlined),
-                        title: const Text("Paste file"),
-                        shortcut: const Text("Ctrl+V"),
-                        onTap: () {},
-                      ),
-                    ],
+                  child: EntityContextMenu(
+                    onOpen: () {
+                      widget.row.onTap?.call();
+                      widget.row.onDoubleTap?.call();
+                    },
                     child: Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: widget.horizontalPadding,

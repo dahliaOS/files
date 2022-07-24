@@ -2,8 +2,7 @@ import 'dart:io';
 
 import 'package:files/backend/entity_info.dart';
 import 'package:files/backend/utils.dart';
-import 'package:files/widgets/context_menu/context_menu.dart';
-import 'package:files/widgets/context_menu/context_menu_entry.dart';
+import 'package:files/widgets/entity_context_menu.dart';
 import 'package:files/widgets/workspace.dart';
 import 'package:flutter/material.dart';
 
@@ -36,7 +35,8 @@ class FilesGrid extends StatelessWidget {
     final ScrollController scrollController = ScrollController();
 
     return GestureDetector(
-      onTap: () => controller.clearSelectedItems(),
+      onTap: () =>
+          WorkspaceController.of(context, listen: false).clearSelectedItems(),
       child: Scrollbar(
         controller: scrollController,
         child: GridView.builder(
@@ -49,13 +49,13 @@ class FilesGrid extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           itemCount: entities.length,
           controller: scrollController,
-          itemBuilder: (context, index) => Draggable<FileSystemEntity>(
-            data: entities[index].entity,
-            dragAnchorStrategy: (_, __, ___) => const Offset(32, 32),
-            feedback: SizedBox(
-              width: size,
-              height: size,
-              child: Container(
+          itemBuilder: (context, index) {
+            final EntityInfo entityInfo = entities[index];
+
+            return Draggable<FileSystemEntity>(
+              data: entityInfo.entity,
+              dragAnchorStrategy: (_, __, ___) => const Offset(32, 32),
+              feedback: Container(
                 decoration: BoxDecoration(
                   color:
                       Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
@@ -63,27 +63,27 @@ class FilesGrid extends StatelessWidget {
                 ),
                 child: Center(
                   child: Cell(
-                    name: Utils.getEntityName(entities[index].path),
-                    icon: entities[index].isDirectory
+                    name: Utils.getEntityName(entityInfo.entity.path),
+                    icon: entityInfo.isDirectory
                         ? Icons.folder
-                        : Utils.iconForPath(entities[index].path),
-                    iconColor: entities[index].isDirectory
+                        : Utils.iconForPath(entityInfo.path),
+                    iconColor: entityInfo.isDirectory
                         ? Theme.of(context).colorScheme.secondary
                         : null,
                   ),
                 ),
               ),
-            ),
-            child: FileCell(
-              entity: entities[index],
-              selected: controller.selectedItems.contains(entities[index]),
-              onTap: onEntityTap,
-              onDoubleTap: onEntityDoubleTap,
-              onLongTap: onEntityLongTap,
-              onSecondaryTap: onEntitySecondaryTap,
-              onDropAccept: onDropAccept,
-            ),
-          ),
+              child: FileCell(
+                entity: entityInfo,
+                selected: controller.selectedItems.contains(entityInfo),
+                onTap: onEntityTap,
+                onDoubleTap: onEntityDoubleTap,
+                onLongTap: onEntityLongTap,
+                onSecondaryTap: onEntitySecondaryTap,
+                onDropAccept: onDropAccept,
+              ),
+            );
+          },
         ),
       ),
     );
@@ -136,46 +136,11 @@ class FileCell extends StatelessWidget {
             onDoubleTap?.call(entity);
           },
           onLongPress: () => onLongTap?.call(entity),
-          child: ContextMenu(
-            entries: [
-              ContextMenuEntry(
-                id: 'open',
-                title: const Text("Open"),
-                onTap: () {
-                  onTap?.call(entity);
-                  onDoubleTap?.call(entity);
-                },
-                shortcut: const Text("Return"),
-              ),
-              ContextMenuEntry(
-                id: 'open_with',
-                title: const Text("Open with other application"),
-                onTap: () {},
-                enabled: false,
-              ),
-              const ContextMenuDivider(),
-              ContextMenuEntry(
-                id: 'copy',
-                leading: const Icon(Icons.file_copy_outlined),
-                title: const Text("Copy file"),
-                onTap: () {},
-                shortcut: const Text("Ctrl+C"),
-              ),
-              ContextMenuEntry(
-                id: 'cut',
-                leading: const Icon(Icons.cut_outlined),
-                title: const Text("Cut file"),
-                onTap: () {},
-                shortcut: const Text("Ctrl+X"),
-              ),
-              ContextMenuEntry(
-                id: 'paste',
-                leading: const Icon(Icons.paste_outlined),
-                title: const Text("Paste file"),
-                shortcut: const Text("Ctrl+V"),
-                onTap: () {},
-              )
-            ],
+          child: EntityContextMenu(
+            onOpen: () {
+              onTap?.call(entity);
+              onDoubleTap?.call(entity);
+            },
             child: Center(
               child: Cell(
                 name: Utils.getEntityName(entity.path),

@@ -113,6 +113,21 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     }
   }
 
+  void _switchWorkspaceView() {
+    setState(() {
+      switch (widget.view) {
+        case WorkspaceView.table:
+          widget.view = WorkspaceView.grid;
+          break;
+        case WorkspaceView.grid:
+          widget.view = WorkspaceView.table;
+          break;
+        default:
+          break;
+      }
+    });
+  }
+
   void onControllerUpdate() {
     if (mounted) setState(() {});
   }
@@ -163,20 +178,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
                   size: 18,
                   color: Colors.white,
                 ),
-                onPressed: () {
-                  setState(() {
-                    switch (widget.view) {
-                      case WorkspaceView.table:
-                        widget.view = WorkspaceView.grid;
-                        break;
-                      case WorkspaceView.grid:
-                        widget.view = WorkspaceView.table;
-                        break;
-                      default:
-                        break;
-                    }
-                  });
-                },
+                onPressed: _switchWorkspaceView,
                 splashRadius: 16,
               ),
               PopupMenuButton<String>(
