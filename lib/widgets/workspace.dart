@@ -39,10 +39,9 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
 
   IconData get viewIcon {
     switch (controller.view) {
-      case WorkspaceView.table:
-        return Icons.list_outlined;
       case WorkspaceView.grid:
         return Icons.grid_view_outlined;
+      case WorkspaceView.table:
       default:
         return Icons.list_outlined;
     }
@@ -117,8 +116,6 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
         case WorkspaceView.grid:
           controller.view = WorkspaceView.table;
           break;
-        default:
-          break;
       }
     });
   }
@@ -153,7 +150,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
               IconButton(
                 icon: const Icon(
                   Icons.arrow_upward,
-                  size: 18,
+                  size: 20,
                   color: Colors.white,
                 ),
                 onPressed: () {
@@ -170,7 +167,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
               IconButton(
                 icon: Icon(
                   viewIcon,
-                  size: 18,
+                  size: 20,
                   color: Colors.white,
                 ),
                 onPressed: _switchWorkspaceView,
