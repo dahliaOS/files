@@ -94,34 +94,31 @@ class _FilesTableState extends State<FilesTable> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return GestureDetector(
-          onTap: () => controller.clearSelectedItems(),
-          child: DoubleScrollbars(
-            horizontalController: widget.horizontalController,
-            verticalController: widget.verticalController,
-            child: ScrollProxy(
-              direction: Axis.horizontal,
-              child: SingleChildScrollView(
-                controller: widget.horizontalController,
-                scrollDirection: Axis.horizontal,
-                child: ScrollProxy(
-                  direction: Axis.vertical,
-                  child: SizedBox(
-                    height: constraints.maxHeight,
-                    width: layoutWidth + widget.rowHorizontalPadding * 2,
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: ListView.builder(
-                            itemBuilder: (context, index) => _buildRow(index),
-                            padding: const EdgeInsets.only(top: 36),
-                            itemCount: widget.rows.length,
-                            controller: widget.verticalController,
-                          ),
+        return DoubleScrollbars(
+          horizontalController: widget.horizontalController,
+          verticalController: widget.verticalController,
+          child: ScrollProxy(
+            direction: Axis.horizontal,
+            child: SingleChildScrollView(
+              controller: widget.horizontalController,
+              scrollDirection: Axis.horizontal,
+              child: ScrollProxy(
+                direction: Axis.vertical,
+                child: SizedBox(
+                  height: constraints.maxHeight,
+                  width: layoutWidth + widget.rowHorizontalPadding * 2,
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: ListView.builder(
+                          itemBuilder: (context, index) => _buildRow(index),
+                          padding: const EdgeInsets.only(top: 36),
+                          itemCount: widget.rows.length,
+                          controller: widget.verticalController,
                         ),
-                        _buildHeaderRow(),
-                      ],
-                    ),
+                      ),
+                      _buildHeaderRow(),
+                    ],
                   ),
                 ),
               ),
