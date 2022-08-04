@@ -35,7 +35,7 @@ abstract class BaseContextMenuEntry extends PopupMenuEntry<String> {
 /// [ContextSubMenuEntry] is a [PopupMenuEntry] that displays a base menu entry.
 class ContextMenuEntry extends BaseContextMenuEntry {
   /// A tap with a primary button has occurred.
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   /// Optional content to display keysequence after the title.
   /// Typically a [Text] widget.
@@ -44,7 +44,7 @@ class ContextMenuEntry extends BaseContextMenuEntry {
   const ContextMenuEntry({
     required String id,
     required Widget title,
-    required this.onTap,
+    this.onTap,
     Widget? leading,
     this.shortcut,
     bool enabled = true,
@@ -71,7 +71,7 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
       onTap: widget.enabled
           ? () {
               Navigator.pop(context);
-              widget.onTap.call();
+              widget.onTap?.call();
             }
           : null,
       child: Container(

@@ -104,12 +104,12 @@ class FileCell extends StatelessWidget {
           borderRadius: BorderRadius.circular(4),
         ),
         child: InkWell(
-          onTap: () => onTap?.call(),
+          onTap: onTap,
           onDoubleTap: () {
             onTap?.call();
             onDoubleTap?.call();
           },
-          onLongPress: () => onLongTap?.call(),
+          onLongPress: onLongTap,
           child: EntityContextMenu(
             onOpen: () {
               onTap?.call();
