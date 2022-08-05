@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:files/backend/entity_info.dart';
 import 'package:files/backend/utils.dart';
 import 'package:files/widgets/entity_context_menu.dart';
+import 'package:files/widgets/timed_inkwell.dart';
 import 'package:files/widgets/workspace.dart';
 import 'package:flutter/material.dart';
 
@@ -26,8 +27,8 @@ class FilesGrid extends StatelessWidget {
     this.onEntitySecondaryTap,
     this.onDropAccept,
     this.size = 96,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +56,7 @@ class FilesGrid extends StatelessWidget {
             return Draggable<FileSystemEntity>(
               data: entityInfo.entity,
               dragAnchorStrategy: (_, __, ___) => const Offset(32, 32),
-              feedback: Container(
+              feedback: DecoratedBox(
                 decoration: BoxDecoration(
                   color:
                       Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
@@ -107,8 +108,8 @@ class FileCell extends StatelessWidget {
     this.onLongTap,
     this.onSecondaryTap,
     this.onDropAccept,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +130,7 @@ class FileCell extends StatelessWidget {
               : Colors.transparent,
           borderRadius: BorderRadius.circular(4),
         ),
-        child: InkWell(
+        child: TimedInkwell(
           onTap: () => onTap?.call(entity),
           onDoubleTap: () {
             onTap?.call(entity);
@@ -168,8 +169,8 @@ class Cell extends StatelessWidget {
     required this.name,
     required this.icon,
     this.iconColor,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +186,7 @@ class Cell extends StatelessWidget {
         DefaultTextStyle(
           style: const TextStyle(fontSize: 14),
           overflow: TextOverflow.ellipsis,
-          maxLines: 2,
+          maxLines: 1,
           textAlign: TextAlign.center,
           child: Text(name),
         ),

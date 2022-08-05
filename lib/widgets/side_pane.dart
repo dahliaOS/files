@@ -14,8 +14,8 @@ class SidePane extends StatefulWidget {
     required this.destinations,
     required this.workspace,
     required this.onNewTab,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _SidePaneState createState() => _SidePaneState();

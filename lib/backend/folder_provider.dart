@@ -43,7 +43,7 @@ class FolderProvider {
       }
     } else if (Platform.isLinux) {
       final dirNames = getUserDirectoryNames();
-      for (String element in dirNames) {
+      for (final String element in dirNames) {
         directories.add(
           MapEntry(
             getUserDirectory(element)!.path,
@@ -52,8 +52,8 @@ class FolderProvider {
         );
       }
 
-      List<String> backDir = directories[0].key.split(Platform.pathSeparator)
-        ..removeLast();
+      final List<String> backDir =
+          directories.first.key.split(Platform.pathSeparator)..removeLast();
       directories.insert(
         0,
         MapEntry(

@@ -48,7 +48,7 @@ class EntityStat with ChangeNotifier {
           size: stat.size,
         );
 
-  void fetchUpdate() async {
+  Future<void> fetchUpdate() async {
     final FileStat ioStat = await FileStat.stat(path);
 
     if (!_statIdentical(ioStat)) {

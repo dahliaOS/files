@@ -3,7 +3,6 @@ import 'package:files/backend/database/model.dart';
 import 'package:files/backend/folder_provider.dart';
 import 'package:files/backend/stat_cache_proxy.dart';
 import 'package:flutter/material.dart';
-import 'package:isar/isar.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -12,10 +11,10 @@ class _ProvidersSingleton {
 
   bool _inited = false;
 
-  Isar? _isar;
-  FolderProvider? _folderProvider;
-  EntityStatCacheHelper? _helper;
-  StatCacheProxy? _cacheProxy;
+  late Isar? _isar;
+  late FolderProvider? _folderProvider;
+  late EntityStatCacheHelper? _helper;
+  late StatCacheProxy? _cacheProxy;
 
   Isar get isar {
     _checkForAvailability();

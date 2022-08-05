@@ -63,7 +63,9 @@ class ContextMenuTheme extends ThemeExtension<ContextMenuTheme> {
 
   @override
   ThemeExtension<ContextMenuTheme> lerp(
-      ThemeExtension<ContextMenuTheme>? other, double t) {
+    ThemeExtension<ContextMenuTheme>? other,
+    double t,
+  ) {
     if (other == null) {
       return this;
     }

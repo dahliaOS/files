@@ -10,19 +10,13 @@ class ContextSubMenuEntry extends BaseContextMenuEntry {
   final List<BaseContextMenuEntry> entries;
 
   const ContextSubMenuEntry({
-    required String id,
-    required Widget title,
+    required super.id,
+    required super.title,
     required this.entries,
-    Widget? leading,
-    bool enabled = true,
-    Key? key,
-  }) : super(
-          id: id,
-          leading: leading,
-          title: title,
-          enabled: enabled,
-          key: key,
-        );
+    super.leading,
+    super.enabled = true,
+    super.key,
+  });
 
   @override
   _ContextSubMenuEntryState createState() => _ContextSubMenuEntryState();

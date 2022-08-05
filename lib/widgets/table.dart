@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
@@ -6,10 +5,10 @@ import 'package:files/backend/entity_info.dart';
 import 'package:files/backend/utils.dart';
 import 'package:files/widgets/double_scrollbars.dart';
 import 'package:files/widgets/entity_context_menu.dart';
+import 'package:files/widgets/timed_inkwell.dart';
 import 'package:files/widgets/workspace.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 
@@ -46,8 +45,8 @@ class FilesTable extends StatefulWidget {
     this.onHeaderResize,
     required this.horizontalController,
     required this.verticalController,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<FilesTable> createState() => _FilesTableState();
@@ -162,15 +161,6 @@ class _FilesTableState extends State<FilesTable> {
     final row = widget.rows[index];
 
     return Draggable<FileSystemEntity>(
-      child: _FilesRow(
-        row: row,
-        columns: widget.columns,
-        horizontalPadding: widget.rowHorizontalPadding,
-        size: Size(
-          layoutWidth + (widget.rowHorizontalPadding * 2),
-          widget.rowHeight,
-        ),
-      ),
       childWhenDragging: _FilesRow(
         row: row,
         columns: widget.columns,
@@ -195,6 +185,15 @@ class _FilesTableState extends State<FilesTable> {
               ? Theme.of(context).colorScheme.secondary
               : Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
           size: 64,
+        ),
+      ),
+      child: _FilesRow(
+        row: row,
+        columns: widget.columns,
+        horizontalPadding: widget.rowHorizontalPadding,
+        size: Size(
+          layoutWidth + (widget.rowHorizontalPadding * 2),
+          widget.rowHeight,
         ),
       ),
     );
@@ -348,17 +347,13 @@ class _FilesRow extends StatefulWidget {
     required this.columns,
     required this.size,
     required this.horizontalPadding,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   _FilesRowState createState() => _FilesRowState();
 }
 
 class _FilesRowState extends State<_FilesRow> {
-  Timer? _tapTimer;
-  bool _awaitingDoubleTap = false;
-
   @override
   void initState() {
     super.initState();
@@ -395,20 +390,9 @@ class _FilesRowState extends State<_FilesRow> {
                     ? Theme.of(context).colorScheme.secondary.withOpacity(0.2)
                     : Colors.transparent,
                 clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: () {
-                    widget.row.onTap?.call();
-                    if (_awaitingDoubleTap) {
-                      widget.row.onDoubleTap?.call();
-                      _awaitingDoubleTap = false;
-                      _tapTimer?.cancel();
-                      _tapTimer = null;
-                    } else {
-                      _awaitingDoubleTap = true;
-                      _tapTimer = Timer(const Duration(milliseconds: 300),
-                          () => _awaitingDoubleTap = false);
-                    }
-                  },
+                child: TimedInkwell(
+                  onTap: widget.row.onTap,
+                  onDoubleTap: widget.row.onDoubleTap,
                   onLongPress: widget.row.onLongTap,
                   child: EntityContextMenu(
                     onOpen: () {
@@ -420,7 +404,6 @@ class _FilesRowState extends State<_FilesRow> {
                         horizontal: widget.horizontalPadding,
                       ),
                       child: Row(
-                        mainAxisSize: MainAxisSize.max,
                         children: widget.columns
                             .map(
                               (column) => _buildCell(

@@ -40,37 +40,37 @@ Future<void> init() async {
 }
 
 class Files extends StatelessWidget {
-  const Files({Key? key}) : super(key: key);
+  const Files({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Files',
       theme: ThemeData(
-        colorScheme: const ColorScheme.dark(
+        colorScheme: const ColorScheme(
           primary: Colors.deepOrange,
-          primaryVariant: Colors.deepOrange,
           secondary: Colors.deepOrange,
-          secondaryVariant: Colors.deepOrange,
           background: Color(0xFF161616),
           surface: Color(0xFF212121),
+          error: Colors.red,
           onPrimary: Colors.white,
           onSecondary: Colors.white,
           onBackground: Colors.white,
           onSurface: Colors.white,
           onError: Colors.white,
+          brightness: Brightness.dark,
         ),
         scrollbarTheme: ScrollbarThemeData(
-          isAlwaysShown: true,
-          showTrackOnHover: true,
+          thumbVisibility: const MaterialStatePropertyAll(true),
+          trackVisibility: MaterialStateProperty.resolveWith(
+            (states) => states.contains(MaterialState.hovered),
+          ),
           trackBorderColor: MaterialStateProperty.all(Colors.transparent),
           crossAxisMargin: 0,
           mainAxisMargin: 0,
           radius: Radius.zero,
         ),
-        extensions: [
-          ContextMenuTheme(),
-        ],
+        extensions: [ContextMenuTheme()],
       ),
       scrollBehavior: const MaterialScrollBehavior().copyWith(
         scrollbars: false,
@@ -82,7 +82,7 @@ class Files extends StatelessWidget {
 }
 
 class FilesHome extends StatefulWidget {
-  const FilesHome({Key? key}) : super(key: key);
+  const FilesHome({super.key});
 
   @override
   _FilesHomeState createState() => _FilesHomeState();

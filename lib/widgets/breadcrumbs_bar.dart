@@ -19,8 +19,8 @@ class BreadcrumbsBar extends StatefulWidget {
     this.leading,
     this.actions,
     this.loadingProgress,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<BreadcrumbsBar> createState() => _BreadcrumbsBarState();
@@ -104,10 +104,14 @@ class _BreadcrumbsBarState extends State<BreadcrumbsBar> {
                                   itemBuilder: (context, index) {
                                     if (index == 0) {
                                       return _buildItemChip(
-                                          index, widget.path.root);
+                                        index,
+                                        widget.path.root,
+                                      );
                                     } else {
                                       return _buildItemChip(
-                                          index, widget.path.parts[index - 1]);
+                                        index,
+                                        widget.path.parts[index - 1],
+                                      );
                                     }
                                   },
                                   itemCount: widget.path.parts.length + 1,
@@ -195,7 +199,7 @@ class _LoadingIndicatorState extends State<_LoadingIndicator>
     _updateController(old);
   }
 
-  void _updateController(_LoadingIndicator old) async {
+  Future<void> _updateController(_LoadingIndicator old) async {
     if (widget.progress != old.progress) {
       if (widget.progress != null && old.progress == null) {
         fadeController.forward();

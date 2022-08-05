@@ -13,15 +13,15 @@ import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class FilesWorkspace extends StatefulWidget {
   final WorkspaceController controller;
 
   const FilesWorkspace({
     required this.controller,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _FilesWorkspaceState createState() => _FilesWorkspaceState();
@@ -97,7 +97,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     });
   }
 
-  void _createFolder() async {
+  Future<void> _createFolder() async {
     final folderNameDialog = await openDialog();
     final PathParts currentDir = PathParts.parse(controller.currentDir);
     currentDir.parts.add('$folderNameDialog');
@@ -155,7 +155,8 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
                 ),
                 onPressed: () {
                   setState(() {
-                    PathParts backDir = PathParts.parse(controller.currentDir);
+                    final PathParts backDir =
+                        PathParts.parse(controller.currentDir);
                     controller.currentDir =
                         backDir.toPath(backDir.parts.length - 1);
                   });
@@ -329,22 +330,23 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
               },
             ),
             TextButton(
-              child: const Text("Create"),
               onPressed: textController.text != ""
                   ? () => showDialog(
                         context: context,
                         builder: (BuildContext context) => AlertDialog(
-                            title: const Text("Folder name cannot be empty"),
-                            actions: [
-                              TextButton(
-                                child: Text("OK"),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ]),
+                          title: const Text("Folder name cannot be empty"),
+                          actions: [
+                            TextButton(
+                              child: const Text("OK"),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        ),
                       )
                   : () => Navigator.of(context).pop(textController.text),
+              child: const Text("Create"),
             ),
           ],
         ),
@@ -365,8 +367,10 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
         "${controller.selectedItems.length} selected $itemLabel";
 
     if (controller.selectedItems.every((element) => element.isFile)) {
-      int totalSize = controller.selectedItems.fold(
-          0, (previousValue, element) => previousValue + element.stat.size);
+      final int totalSize = controller.selectedItems.fold(
+        0,
+        (previousValue, element) => previousValue + element.stat.size,
+      );
       baseString += " ${filesize(totalSize)}";
     }
 
@@ -400,7 +404,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     if (entity.isDirectory) {
       controller.currentDir = entity.path;
     } else {
-      launch(entity.path);
+      launchUrlString(entity.path);
     }
   }
 
@@ -495,7 +499,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
           }
         } else {
           return const Center(
-            child: CircularProgressIndicator(strokeWidth: 4),
+            child: CircularProgressIndicator(),
           );
         }
       },
@@ -618,7 +622,7 @@ class WorkspaceController with ChangeNotifier {
     notifyListeners();
   }
 
-  void changeCurrentDir(String newDir) async {
+  Future<void> changeCurrentDir(String newDir) async {
     clearCurrentInfo();
     clearSelectedItems();
     await directoryStream?.cancel();
@@ -627,7 +631,7 @@ class WorkspaceController with ChangeNotifier {
         Directory(newDir).watch().listen(_directoryStreamListener);
   }
 
-  void _directoryStreamListener(FileSystemEvent event) async {
+  Future<void> _directoryStreamListener(FileSystemEvent event) async {
     await getInfoForDir(Directory(currentDir));
   }
 
@@ -638,14 +642,10 @@ class WorkspaceController with ChangeNotifier {
 
 class CachingScrollController extends ScrollController {
   CachingScrollController({
-    double initialScrollOffset = 0.0,
-    bool keepScrollOffset = true,
-    String? debugLabel,
-  }) : super(
-          initialScrollOffset: initialScrollOffset,
-          keepScrollOffset: keepScrollOffset,
-          debugLabel: debugLabel,
-        );
+    super.initialScrollOffset = 0.0,
+    super.keepScrollOffset = true,
+    super.debugLabel,
+  });
 
   bool _inited = false;
   late ScrollPosition lastPosition;

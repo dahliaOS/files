@@ -17,7 +17,6 @@ limitations under the License.
 //credits: @HrX03 for API https://github.com/HrX03/Flux
 
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:files/backend/database/model.dart';
 
@@ -52,7 +51,7 @@ class EntityInfo {
   }
 
   @override
-  int get hashCode => hashValues(
+  int get hashCode => Object.hash(
         entity.path,
         stat.accessed,
         stat.changed,

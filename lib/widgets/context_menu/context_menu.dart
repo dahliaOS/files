@@ -24,8 +24,8 @@ class ContextMenu extends StatelessWidget {
     required this.entries,
     this.openOnSecondary = true,
     this.openOnLong = true,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -20,8 +20,8 @@ class TabStrip extends StatelessWidget {
     this.onTabChanged,
     this.onTabClosed,
     this.onNewTab,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +127,6 @@ class _TabState extends State<_Tab> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Icon(
                   indexOf != -1

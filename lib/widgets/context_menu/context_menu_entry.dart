@@ -22,8 +22,8 @@ abstract class BaseContextMenuEntry extends PopupMenuEntry<String> {
     required this.title,
     this.leading,
     this.enabled = true,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   double get height => 48;
@@ -42,20 +42,14 @@ class ContextMenuEntry extends BaseContextMenuEntry {
   final Widget? shortcut;
 
   const ContextMenuEntry({
-    required String id,
-    required Widget title,
+    required super.id,
+    required super.title,
     this.onTap,
-    Widget? leading,
+    super.leading,
     this.shortcut,
-    bool enabled = true,
-    Key? key,
-  }) : super(
-          id: id,
-          leading: leading,
-          title: title,
-          enabled: enabled,
-          key: key,
-        );
+    super.enabled = true,
+    super.key,
+  });
 
   @override
   _ContextMenuEntryState createState() => _ContextMenuEntryState();
@@ -123,8 +117,8 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
 
 /// A horizontal divider in a Material Design popup menu.
 class ContextMenuDivider extends BaseContextMenuEntry {
-  const ContextMenuDivider({Key? key})
-      : super(id: "", title: const SizedBox(), key: key);
+  const ContextMenuDivider({super.key})
+      : super(id: "", title: const SizedBox());
 
   @override
   bool represents(void value) => false;

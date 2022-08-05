@@ -31,9 +31,10 @@ class PathParts {
   }
 
   String toPath([int? numOfParts]) {
-    final int _numOfParts = numOfParts ?? parts.length;
-    assert(_numOfParts >= 0 && _numOfParts <= parts.length);
-    final List<String> transformedPathParts = parts.sublist(0, _numOfParts);
+    final int resolvedNumOfParts = numOfParts ?? parts.length;
+    assert(resolvedNumOfParts >= 0 && resolvedNumOfParts <= parts.length);
+    final List<String> transformedPathParts =
+        parts.sublist(0, resolvedNumOfParts);
     final String path = transformedPathParts.join(separator);
 
     return "$root$path";

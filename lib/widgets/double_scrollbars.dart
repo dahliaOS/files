@@ -9,8 +9,8 @@ class DoubleScrollbars extends StatelessWidget {
     required this.horizontalController,
     required this.verticalController,
     required this.child,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,13 +18,11 @@ class DoubleScrollbars extends StatelessWidget {
       child: ScrollNotificationIsolater(
         child: Scrollbar(
           controller: verticalController,
-          isAlwaysShown: true,
           child: _ScrollReceiver(
             direction: Axis.vertical,
             child: ScrollNotificationIsolater(
               child: Scrollbar(
                 controller: horizontalController,
-                isAlwaysShown: true,
                 child: _ScrollReceiver(
                   direction: Axis.horizontal,
                   child: child,
@@ -72,8 +70,8 @@ class _ScrollReceiverInheritedWidget extends InheritedWidget {
 
   const _ScrollReceiverInheritedWidget({
     required this.state,
-    required Widget child,
-  }) : super(child: child);
+    required super.child,
+  });
 
   @override
   bool updateShouldNotify(covariant InheritedWidget oldWidget) {
@@ -83,9 +81,9 @@ class _ScrollReceiverInheritedWidget extends InheritedWidget {
 
 class HorizontalScrollReceiver extends _ScrollReceiverInheritedWidget {
   const HorizontalScrollReceiver._({
-    required _ScrollReceiverState state,
-    required Widget child,
-  }) : super(state: state, child: child);
+    required super.state,
+    required super.child,
+  });
 
   static _ScrollReceiverState of(BuildContext context) {
     return context
@@ -96,9 +94,9 @@ class HorizontalScrollReceiver extends _ScrollReceiverInheritedWidget {
 
 class VerticalScrollReceiver extends _ScrollReceiverInheritedWidget {
   const VerticalScrollReceiver._({
-    required _ScrollReceiverState state,
-    required Widget child,
-  }) : super(state: state, child: child);
+    required super.state,
+    required super.child,
+  });
 
   static _ScrollReceiverState of(BuildContext context) {
     return context
@@ -114,8 +112,8 @@ class ScrollProxy extends StatelessWidget {
   const ScrollProxy({
     required this.direction,
     required this.child,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -145,8 +143,8 @@ class ScrollNotificationIsolater extends StatelessWidget {
 
   const ScrollNotificationIsolater({
     required this.child,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

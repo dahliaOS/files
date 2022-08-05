@@ -127,6 +127,8 @@ class CancelableFsFetch {
           return item1.stat.size.compareTo(item2.stat.size);
         }
     }
+
+    return null;
   }
 
   Future<void> cancel() async {
