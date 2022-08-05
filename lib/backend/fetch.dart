@@ -6,6 +6,13 @@ import 'package:files/backend/providers.dart';
 import 'package:files/backend/utils.dart';
 import 'package:flutter/foundation.dart';
 
+enum SortType {
+  name,
+  modified,
+  type,
+  size,
+}
+
 class CancelableFsFetch {
   final Directory directory;
   final ValueChanged<List<EntityInfo>?> onFetched;
@@ -38,7 +45,14 @@ class CancelableFsFetch {
     onProgressChange?.call(0.0);
     late final List<FileSystemEntity> list;
     try {
-      list = await directory.list(followLinks: true).toList();
+      list = await directory
+          .list()
+          .where(
+            (element) =>
+                !Utils.getEntityName(element.path).startsWith(".") ||
+                showHidden,
+          )
+          .toList();
     } on FileSystemException catch (e) {
       onFileSystemException?.call(e.osError);
       _cancelled = true;
@@ -53,12 +67,6 @@ class CancelableFsFetch {
         onCancel?.call();
         cancelableCompleter.complete();
         return;
-      }
-
-      String name = Utils.getEntityName(list[i].path);
-      if (name.startsWith(".") && !showHidden) {
-        list.removeAt(i);
-        continue;
       }
 
       late final EntityInfo info;

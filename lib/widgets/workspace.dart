@@ -4,9 +4,10 @@ import 'dart:io';
 import 'package:files/backend/entity_info.dart';
 import 'package:files/backend/fetch.dart';
 import 'package:files/backend/path_parts.dart';
+import 'package:files/backend/utils.dart';
 import 'package:files/widgets/breadcrumbs_bar.dart';
-import 'package:files/widgets/context_menu/context_menu.dart';
 import 'package:files/widgets/context_menu/context_menu_entry.dart';
+import 'package:files/widgets/grid.dart';
 import 'package:files/widgets/table.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
@@ -36,13 +37,25 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
 
   String folderName = ' ';
 
+  IconData get viewIcon {
+    switch (controller.view) {
+      case WorkspaceView.grid:
+        return Icons.grid_view_outlined;
+      case WorkspaceView.table:
+      default:
+        return Icons.list_outlined;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     horizontalController = CachingScrollController(
-        initialScrollOffset: controller.lastHorizontalScrollOffset);
+      initialScrollOffset: controller.lastHorizontalScrollOffset,
+    );
     verticalController = CachingScrollController(
-        initialScrollOffset: controller.lastVerticalScrollOffset);
+      initialScrollOffset: controller.lastVerticalScrollOffset,
+    );
     textController = TextEditingController();
     controller.addListener(onControllerUpdate);
   }
@@ -65,6 +78,25 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     });
   }
 
+  void _setSortType(SortType? type) {
+    setState(() {
+      if (type != null) {
+        controller.sortType = type;
+        controller.columnIndex = type.index;
+        controller.changeCurrentDir(controller.currentDir);
+      }
+    });
+  }
+
+  void _setSortOrder(bool ascending) {
+    setState(() {
+      if (ascending != controller.ascending) {
+        controller.ascending = ascending;
+        controller.changeCurrentDir(controller.currentDir);
+      }
+    });
+  }
+
   void _createFolder() async {
     final folderNameDialog = await openDialog();
     final PathParts currentDir = PathParts.parse(controller.currentDir);
@@ -73,6 +105,19 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
       await Directory(currentDir.toPath()).create(recursive: true);
       controller.currentDir = currentDir.toPath();
     }
+  }
+
+  void _switchWorkspaceView() {
+    setState(() {
+      switch (controller.view) {
+        case WorkspaceView.table:
+          controller.view = WorkspaceView.grid;
+          break;
+        case WorkspaceView.grid:
+          controller.view = WorkspaceView.table;
+          break;
+      }
+    });
   }
 
   void onControllerUpdate() {
@@ -105,7 +150,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
               IconButton(
                 icon: const Icon(
                   Icons.arrow_upward,
-                  size: 18,
+                  size: 20,
                   color: Colors.white,
                 ),
                 onPressed: () {
@@ -119,6 +164,15 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
               ),
             ],
             actions: [
+              IconButton(
+                icon: Icon(
+                  viewIcon,
+                  size: 20,
+                  color: Colors.white,
+                ),
+                onPressed: _switchWorkspaceView,
+                splashRadius: 16,
+              ),
               PopupMenuButton<String>(
                 splashRadius: 16,
                 color: Theme.of(context).colorScheme.surface,
@@ -143,6 +197,83 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
                     id: 'createFolder',
                     title: const Text('Create new folder'),
                     onTap: () => _createFolder(),
+                  ),
+                  const ContextMenuDivider(),
+                  ContextMenuEntry(
+                    id: 'name',
+                    title: const Text('Name'),
+                    onTap: () => _setSortType(SortType.name),
+                    shortcut: Radio<SortType>(
+                      value: SortType.name,
+                      groupValue: controller.sortType,
+                      onChanged: (SortType? type) {
+                        _setSortType(type);
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                  ContextMenuEntry(
+                    id: 'modifies',
+                    title: const Text('Modifies'),
+                    onTap: () => _setSortType(SortType.modified),
+                    shortcut: Radio<SortType>(
+                      value: SortType.modified,
+                      groupValue: controller.sortType,
+                      onChanged: (SortType? type) {
+                        _setSortType(type);
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                  ContextMenuEntry(
+                    id: 'size',
+                    title: const Text('Size'),
+                    onTap: () => _setSortType(SortType.size),
+                    shortcut: Radio<SortType>(
+                      value: SortType.size,
+                      groupValue: controller.sortType,
+                      onChanged: (SortType? type) {
+                        _setSortType(type);
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                  ContextMenuEntry(
+                    id: 'type',
+                    title: const Text('Type'),
+                    onTap: () => _setSortType(SortType.type),
+                    shortcut: Radio<SortType>(
+                      value: SortType.type,
+                      groupValue: controller.sortType,
+                      onChanged: (SortType? type) {
+                        _setSortType(type);
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                  const ContextMenuDivider(),
+                  ContextMenuEntry(
+                    id: 'ascending',
+                    title: const Text('Ascending'),
+                    onTap: () => _setSortOrder(true),
+                    leading:
+                        controller.ascending ? const Icon(Icons.check) : null,
+                  ),
+                  ContextMenuEntry(
+                    id: 'descending',
+                    title: const Text('Descending'),
+                    onTap: () => _setSortOrder(false),
+                    leading:
+                        controller.ascending ? null : const Icon(Icons.check),
+                  ),
+                  const ContextMenuDivider(),
+                  ContextMenuEntry(
+                    id: 'reload',
+                    title: const Text('Reload'),
+                    onTap: () async {
+                      await controller
+                          .getInfoForDir(Directory(controller.currentDir));
+                    },
                   ),
                 ],
               ),
@@ -242,89 +373,109 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     return baseString;
   }
 
+  void _onEntityTap(EntityInfo entity) {
+    final bool selected = controller.selectedItems.contains(entity);
+    final Set<LogicalKeyboardKey> keysPressed =
+        RawKeyboard.instance.keysPressed;
+    final bool multiSelect = keysPressed.contains(
+          LogicalKeyboardKey.controlLeft,
+        ) ||
+        keysPressed.contains(
+          LogicalKeyboardKey.controlRight,
+        );
+
+    if (!multiSelect) controller.clearSelectedItems();
+
+    if (!selected && multiSelect) {
+      controller.addSelectedItem(entity);
+    } else if (selected && multiSelect) {
+      controller.removeSelectedItem(entity);
+    } else {
+      controller.addSelectedItem(entity);
+    }
+    setState(() {});
+  }
+
+  void _onEntityDoubleTap(EntityInfo entity) {
+    if (entity.isDirectory) {
+      controller.currentDir = entity.path;
+    } else {
+      launch(entity.path);
+    }
+  }
+
+  // For move more than one file
+  void _onDropAccepted(String path) {
+    for (final entity in controller.selectedItems) {
+      Utils.moveFileToDest(entity.entity, path);
+    }
+  }
+
   Widget get body {
     return Builder(
       builder: (context) {
         if (controller.currentInfo != null) {
           if (controller.currentInfo!.isNotEmpty) {
-            return FilesTable(
-              rows: controller.currentInfo!
-                  .map(
-                    (entity) => FilesRow(
-                      entity: entity,
-                      selected: controller.selectedItems.contains(entity),
-                      onTap: () {
-                        bool selected =
-                            controller.selectedItems.contains(entity);
-                        final Set<LogicalKeyboardKey> keysPressed =
-                            RawKeyboard.instance.keysPressed;
-                        final bool multiSelect = keysPressed.contains(
-                              LogicalKeyboardKey.controlLeft,
-                            ) ||
-                            keysPressed.contains(
-                              LogicalKeyboardKey.controlRight,
-                            );
-
-                        if (!multiSelect) controller.clearSelectedItems();
-
-                        if (!selected && multiSelect) {
-                          controller.addSelectedItem(entity);
-                        } else if (selected && multiSelect) {
-                          controller.removeSelectedItem(entity);
-                        } else {
-                          controller.addSelectedItem(entity);
-                        }
-                        setState(() {});
-                      },
-                      onDoubleTap: () {
-                        if (entity.isDirectory) {
-                          controller.currentDir = entity.path;
-                        } else {
-                          launch(entity.path);
-                        }
-                      },
-                    ),
-                  )
-                  .toList(),
-              columns: [
-                FilesColumn(
-                  width: controller.columnWidths[0],
-                  type: FilesColumnType.name,
-                ),
-                FilesColumn(
-                  width: controller.columnWidths[1],
-                  type: FilesColumnType.date,
-                ),
-                FilesColumn(
-                  width: controller.columnWidths[2],
-                  type: FilesColumnType.type,
-                  allowSorting: false,
-                ),
-                FilesColumn(
-                  width: controller.columnWidths[3],
-                  type: FilesColumnType.size,
-                ),
-              ],
-              ascending: controller.ascending,
-              columnIndex: controller.columnIndex,
-              onHeaderCellTap: (newAscending, newColumnIndex) {
-                if (controller.columnIndex == newColumnIndex) {
-                  controller.ascending = newAscending;
-                } else {
-                  controller.ascending = true;
-                  controller.columnIndex = newColumnIndex;
-                }
-                controller.changeCurrentDir(controller.currentDir);
-              },
-              onHeaderResize: (newColumnIndex, details) {
-                controller.addToColumnWidth(
-                  newColumnIndex,
-                  details.primaryDelta!,
+            switch (controller.view) {
+              case WorkspaceView.grid:
+                return FilesGrid(
+                  entities: controller.currentInfo!,
+                  onEntityTap: _onEntityTap,
+                  onEntityDoubleTap: _onEntityDoubleTap,
+                  onDropAccept: _onDropAccepted,
                 );
-              },
-              horizontalController: horizontalController,
-              verticalController: verticalController,
-            );
+              default:
+                return FilesTable(
+                  rows: controller.currentInfo!
+                      .map(
+                        (entity) => FilesRow(
+                          entity: entity,
+                          selected: controller.selectedItems.contains(entity),
+                          onTap: () => _onEntityTap(entity),
+                          onDoubleTap: () => _onEntityDoubleTap(entity),
+                        ),
+                      )
+                      .toList(),
+                  columns: [
+                    FilesColumn(
+                      width: controller.columnWidths[0],
+                      type: FilesColumnType.name,
+                    ),
+                    FilesColumn(
+                      width: controller.columnWidths[1],
+                      type: FilesColumnType.date,
+                    ),
+                    FilesColumn(
+                      width: controller.columnWidths[2],
+                      type: FilesColumnType.type,
+                      allowSorting: false,
+                    ),
+                    FilesColumn(
+                      width: controller.columnWidths[3],
+                      type: FilesColumnType.size,
+                    ),
+                  ],
+                  ascending: controller.ascending,
+                  columnIndex: controller.columnIndex,
+                  onHeaderCellTap: (newAscending, newColumnIndex) {
+                    if (controller.columnIndex == newColumnIndex) {
+                      controller.ascending = newAscending;
+                    } else {
+                      controller.ascending = true;
+                      controller.columnIndex = newColumnIndex;
+                    }
+                    controller.changeCurrentDir(controller.currentDir);
+                  },
+                  onHeaderResize: (newColumnIndex, details) {
+                    controller.addToColumnWidth(
+                      newColumnIndex,
+                      details.primaryDelta!,
+                    );
+                  },
+                  horizontalController: horizontalController,
+                  verticalController: verticalController,
+                );
+            }
           } else {
             return Center(
               child: Column(
@@ -352,6 +503,8 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
   }
 }
 
+enum WorkspaceView { table, grid }
+
 class WorkspaceController with ChangeNotifier {
   WorkspaceController({required String initialDir}) {
     currentDir = initialDir;
@@ -364,11 +517,13 @@ class WorkspaceController with ChangeNotifier {
   bool _ascending = true;
   bool _showHidden = false;
   int _columnIndex = 0;
+  SortType _sortType = SortType.name;
   final List<EntityInfo> _selectedItems = [];
   List<EntityInfo>? _currentInfo;
   double? _loadingProgress;
   CancelableFsFetch? _fetcher;
   StreamSubscription<FileSystemEvent>? directoryStream;
+  WorkspaceView _view = WorkspaceView.table; // save on SharedPreferences?
 
   Future<void> getInfoForDir(Directory dir) async {
     await _fetcher?.cancel();
@@ -421,6 +576,18 @@ class WorkspaceController with ChangeNotifier {
   int get columnIndex => _columnIndex;
   set columnIndex(int value) {
     _columnIndex = value;
+    notifyListeners();
+  }
+
+  SortType get sortType => _sortType;
+  set sortType(SortType value) {
+    _sortType = value;
+    notifyListeners();
+  }
+
+  WorkspaceView get view => _view;
+  set view(WorkspaceView value) {
+    _view = value;
     notifyListeners();
   }
 
