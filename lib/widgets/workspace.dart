@@ -198,77 +198,75 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
                     title: const Text('Create new folder'),
                     onTap: () => _createFolder(),
                   ),
-                  if (controller.view == WorkspaceView.grid) ...[
-                    const ContextMenuDivider(),
-                    ContextMenuEntry(
-                      id: 'name',
-                      title: const Text('Name'),
-                      onTap: () => _setSortType(SortType.name),
-                      shortcut: Radio<SortType>(
-                        value: SortType.name,
-                        groupValue: controller.sortType,
-                        onChanged: (SortType? type) {
-                          _setSortType(type);
-                          Navigator.pop(context);
-                        },
-                      ),
+                  const ContextMenuDivider(),
+                  ContextMenuEntry(
+                    id: 'name',
+                    title: const Text('Name'),
+                    onTap: () => _setSortType(SortType.name),
+                    shortcut: Radio<SortType>(
+                      value: SortType.name,
+                      groupValue: controller.sortType,
+                      onChanged: (SortType? type) {
+                        _setSortType(type);
+                        Navigator.pop(context);
+                      },
                     ),
-                    ContextMenuEntry(
-                      id: 'modifies',
-                      title: const Text('Modifies'),
-                      onTap: () => _setSortType(SortType.modified),
-                      shortcut: Radio<SortType>(
-                        value: SortType.modified,
-                        groupValue: controller.sortType,
-                        onChanged: (SortType? type) {
-                          _setSortType(type);
-                          Navigator.pop(context);
-                        },
-                      ),
+                  ),
+                  ContextMenuEntry(
+                    id: 'modifies',
+                    title: const Text('Modifies'),
+                    onTap: () => _setSortType(SortType.modified),
+                    shortcut: Radio<SortType>(
+                      value: SortType.modified,
+                      groupValue: controller.sortType,
+                      onChanged: (SortType? type) {
+                        _setSortType(type);
+                        Navigator.pop(context);
+                      },
                     ),
-                    ContextMenuEntry(
-                      id: 'size',
-                      title: const Text('Size'),
-                      onTap: () => _setSortType(SortType.size),
-                      shortcut: Radio<SortType>(
-                        value: SortType.size,
-                        groupValue: controller.sortType,
-                        onChanged: (SortType? type) {
-                          _setSortType(type);
-                          Navigator.pop(context);
-                        },
-                      ),
+                  ),
+                  ContextMenuEntry(
+                    id: 'size',
+                    title: const Text('Size'),
+                    onTap: () => _setSortType(SortType.size),
+                    shortcut: Radio<SortType>(
+                      value: SortType.size,
+                      groupValue: controller.sortType,
+                      onChanged: (SortType? type) {
+                        _setSortType(type);
+                        Navigator.pop(context);
+                      },
                     ),
-                    ContextMenuEntry(
-                      id: 'type',
-                      title: const Text('Type'),
-                      onTap: () => _setSortType(SortType.type),
-                      shortcut: Radio<SortType>(
-                        value: SortType.type,
-                        groupValue: controller.sortType,
-                        onChanged: (SortType? type) {
-                          _setSortType(type);
-                          Navigator.pop(context);
-                        },
-                      ),
+                  ),
+                  ContextMenuEntry(
+                    id: 'type',
+                    title: const Text('Type'),
+                    onTap: () => _setSortType(SortType.type),
+                    shortcut: Radio<SortType>(
+                      value: SortType.type,
+                      groupValue: controller.sortType,
+                      onChanged: (SortType? type) {
+                        _setSortType(type);
+                        Navigator.pop(context);
+                      },
                     ),
-                    const ContextMenuDivider(),
-                    ContextMenuEntry(
-                      id: 'ascending',
-                      title: const Text('Ascending'),
-                      onTap: () => _setSortOrder(true),
-                      leading:
-                          controller.ascending ? const Icon(Icons.check) : null,
-                    ),
-                    ContextMenuEntry(
-                      id: 'descending',
-                      title: const Text('Descending'),
-                      onTap: () => _setSortOrder(false),
-                      leading:
-                          controller.ascending ? null : const Icon(Icons.check),
-                    ),
-                    const ContextMenuDivider(),
-                  ],
+                  ),
+                  const ContextMenuDivider(),
+                  ContextMenuEntry(
+                    id: 'ascending',
+                    title: const Text('Ascending'),
+                    onTap: () => _setSortOrder(true),
+                    leading:
+                        controller.ascending ? const Icon(Icons.check) : null,
+                  ),
+                  ContextMenuEntry(
+                    id: 'descending',
+                    title: const Text('Descending'),
+                    onTap: () => _setSortOrder(false),
+                    leading:
+                        controller.ascending ? null : const Icon(Icons.check),
+                  ),
+                  const ContextMenuDivider(),
                   ContextMenuEntry(
                     id: 'reload',
                     title: const Text('Reload'),
