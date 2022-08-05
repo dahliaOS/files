@@ -7,7 +7,6 @@ import 'package:files/backend/path_parts.dart';
 import 'package:files/backend/utils.dart';
 import 'package:files/widgets/breadcrumbs_bar.dart';
 import 'package:files/widgets/context_menu/context_menu_entry.dart';
-import 'package:files/widgets/files_view.dart';
 import 'package:files/widgets/grid.dart';
 import 'package:files/widgets/table.dart';
 import 'package:filesize/filesize.dart';
@@ -419,31 +418,66 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
       builder: (context) {
         if (controller.currentInfo != null) {
           if (controller.currentInfo!.isNotEmpty) {
-            return FilesView(
-              gridDelegates: controller.currentInfo!
-                  .map(
-                    (entity) => FileCell(
-                      entity: entity,
-                      selected: controller.selectedItems.contains(entity),
-                      onTap: () => _onEntityTap(entity),
-                      onDoubleTap: () => _onEntityDoubleTap(entity),
-                      onDropAccept: _onDropAccepted,
+            switch (controller.view) {
+              case WorkspaceView.grid:
+                return FilesGrid(
+                  entities: controller.currentInfo!,
+                  onEntityTap: _onEntityTap,
+                  onEntityDoubleTap: _onEntityDoubleTap,
+                  onDropAccept: _onDropAccepted,
+                );
+              default:
+                return FilesTable(
+                  rows: controller.currentInfo!
+                      .map(
+                        (entity) => FilesRow(
+                          entity: entity,
+                          selected: controller.selectedItems.contains(entity),
+                          onTap: () => _onEntityTap(entity),
+                          onDoubleTap: () => _onEntityDoubleTap(entity),
+                        ),
+                      )
+                      .toList(),
+                  columns: [
+                    FilesColumn(
+                      width: controller.columnWidths[0],
+                      type: FilesColumnType.name,
                     ),
-                  )
-                  .toList(),
-              tableDelegates: controller.currentInfo!
-                  .map(
-                    (entity) => FilesRow(
-                      entity: entity,
-                      selected: controller.selectedItems.contains(entity),
-                      onTap: () => _onEntityTap(entity),
-                      onDoubleTap: () => _onEntityDoubleTap(entity),
+                    FilesColumn(
+                      width: controller.columnWidths[1],
+                      type: FilesColumnType.date,
                     ),
-                  )
-                  .toList(),
-              horizontalController: horizontalController,
-              verticalController: verticalController,
-            );
+                    FilesColumn(
+                      width: controller.columnWidths[2],
+                      type: FilesColumnType.type,
+                      allowSorting: false,
+                    ),
+                    FilesColumn(
+                      width: controller.columnWidths[3],
+                      type: FilesColumnType.size,
+                    ),
+                  ],
+                  ascending: controller.ascending,
+                  columnIndex: controller.columnIndex,
+                  onHeaderCellTap: (newAscending, newColumnIndex) {
+                    if (controller.columnIndex == newColumnIndex) {
+                      controller.ascending = newAscending;
+                    } else {
+                      controller.ascending = true;
+                      controller.columnIndex = newColumnIndex;
+                    }
+                    controller.changeCurrentDir(controller.currentDir);
+                  },
+                  onHeaderResize: (newColumnIndex, details) {
+                    controller.addToColumnWidth(
+                      newColumnIndex,
+                      details.primaryDelta!,
+                    );
+                  },
+                  horizontalController: horizontalController,
+                  verticalController: verticalController,
+                );
+            }
           } else {
             return Center(
               child: Column(
