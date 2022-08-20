@@ -1,8 +1,8 @@
 <p align="center">
-  <img width="90%" src="https://raw.githubusercontent.com/dahliaOS/website/main/public/images/darkFiles.webp#gh-dark-mode-only"
+  <img width="90%" src="https://raw.githubusercontent.com/dahliaOS/website/main/public/images/mockups/darkFiles.webp#gh-dark-mode-only"
 </p>
 <p align="center">
-  <img width="90%" src="https://raw.githubusercontent.com/dahliaOS/website/main/public/images/lightFiles.webp#gh-light-mode-only"
+  <img width="90%" src="https://raw.githubusercontent.com/dahliaOS/website/main/public/images/mockups/lightFiles.webp#gh-light-mode-only"
 </p>
 
 <p align="center">
