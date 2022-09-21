@@ -6,12 +6,15 @@
 
 #include "generated_plugin_registrant.h"
 
-#include <url_launcher_windows/url_launcher_plugin.h>
+#include <isar_flutter_libs/isar_flutter_libs_plugin.h>
+#include <url_launcher_windows/url_launcher_windows.h>
 #include <windows_path_provider/windows_path_provider_plugin.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
-  UrlLauncherPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("UrlLauncherPlugin"));
+  IsarFlutterLibsPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("IsarFlutterLibsPlugin"));
+  UrlLauncherWindowsRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("UrlLauncherWindows"));
   WindowsPathProviderPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("WindowsPathProviderPlugin"));
 }
