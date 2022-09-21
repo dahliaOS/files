@@ -52,15 +52,26 @@ class FolderProvider {
         );
       }
 
-      List<String> backDir = directories[0].key.split(Platform.pathSeparator)
-        ..removeLast();
-      directories.insert(
-        0,
-        MapEntry(
-          backDir.join(Platform.pathSeparator),
-          icons["HOME"]!,
-        ),
-      );
+      try {
+        List<String> backDir = directories[0].key.split(Platform.pathSeparator)
+          ..removeLast();
+        directories.insert(
+          0,
+          MapEntry(
+            backDir.join(Platform.pathSeparator),
+            icons["HOME"]!,
+          ),
+        );
+      } catch (e) {
+        final user = Platform.environment['USER'];
+        directories.insert(
+          0,
+          MapEntry(
+            '/home/$user',
+            icons["HOME"]!,
+          ),
+        );
+      }
     } else {
       throw Exception("Platform not supported");
     }
