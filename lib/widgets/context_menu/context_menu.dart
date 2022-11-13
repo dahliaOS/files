@@ -3,7 +3,7 @@ import 'package:files/widgets/context_menu/context_menu_theme.dart';
 import 'package:flutter/material.dart';
 
 /// [ContextMenu] provides popup menu for the [child] widget and contains [entries].
-class ContextMenu extends StatelessWidget {
+class ContextMenu<T> extends StatelessWidget {
   /// [child] is the widget for which the context menu will be called.
   final Widget child;
 

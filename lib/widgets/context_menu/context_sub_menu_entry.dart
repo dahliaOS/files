@@ -4,13 +4,16 @@ import 'package:files/widgets/context_menu/context_menu_theme.dart';
 import 'package:flutter/material.dart';
 
 /// [ContextSubMenuEntry] is a [PopupMenuEntry] that displays a submenu with [entries].
-class ContextSubMenuEntry extends BaseContextMenuEntry {
+class ContextSubMenuEntry<T> extends BaseContextMenuEntry<T> {
+  /// Using for [represents] method.
+  final T id;
+
   /// The [entries] are displayed in the order they are provided.
   /// They can be [ContextMenuEntry], [ContextMenuDivider], [ContextSubMenuEntry] or any other widgets inherited from PopupMenuEntry.
-  final List<BaseContextMenuEntry> entries;
+  final List<BaseContextMenuEntry<T>> entries;
 
   const ContextSubMenuEntry({
-    required super.id,
+    required this.id,
     required super.title,
     required this.entries,
     super.leading,
@@ -25,7 +28,7 @@ class ContextSubMenuEntry extends BaseContextMenuEntry {
   double get height => 40;
 
   @override
-  bool represents(String? value) => id == value;
+  bool represents(T? value) => id == value;
 }
 
 class _ContextSubMenuEntryState extends State<ContextSubMenuEntry> {

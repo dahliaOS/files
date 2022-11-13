@@ -16,16 +16,28 @@ class DoubleScrollbars extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox.expand(
       child: ScrollNotificationIsolater(
-        child: Scrollbar(
-          controller: verticalController,
-          child: _ScrollReceiver(
-            direction: Axis.vertical,
-            child: ScrollNotificationIsolater(
-              child: Scrollbar(
-                controller: horizontalController,
-                child: _ScrollReceiver(
-                  direction: Axis.horizontal,
-                  child: child,
+        child: MediaQuery(
+          data: MediaQueryData(
+            padding: const EdgeInsetsDirectional.only(bottom: 12)
+                .resolve(Directionality.of(context)),
+          ),
+          child: Scrollbar(
+            controller: verticalController,
+            child: _ScrollReceiver(
+              direction: Axis.vertical,
+              child: ScrollNotificationIsolater(
+                child: MediaQuery(
+                  data: MediaQueryData(
+                    padding: const EdgeInsetsDirectional.only(end: 12)
+                        .resolve(Directionality.of(context)),
+                  ),
+                  child: Scrollbar(
+                    controller: horizontalController,
+                    child: _ScrollReceiver(
+                      direction: Axis.horizontal,
+                      child: child,
+                    ),
+                  ),
                 ),
               ),
             ),

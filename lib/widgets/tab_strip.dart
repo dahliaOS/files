@@ -1,4 +1,3 @@
-import 'package:files/backend/providers.dart';
 import 'package:files/backend/utils.dart';
 import 'package:files/widgets/context_menu/context_menu.dart';
 import 'package:files/widgets/context_menu/context_menu_entry.dart';
@@ -107,10 +106,6 @@ class _TabState extends State<_Tab> {
 
   @override
   Widget build(BuildContext context) {
-    final int indexOf = folderProvider.directories.indexWhere(
-      (element) => element.key == widget.tab.currentDir,
-    );
-
     return SizedBox(
       width: 240,
       height: double.infinity,
@@ -128,12 +123,7 @@ class _TabState extends State<_Tab> {
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Row(
               children: [
-                Icon(
-                  indexOf != -1
-                      ? folderProvider.directories[indexOf].value
-                      : Icons.folder,
-                  size: 16,
-                ),
+                Icon(Utils.iconForFolder(widget.tab.currentDir), size: 16),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(

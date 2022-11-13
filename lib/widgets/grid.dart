@@ -36,8 +36,7 @@ class FilesGrid extends StatelessWidget {
     final ScrollController scrollController = ScrollController();
 
     return GestureDetector(
-      onTap: () =>
-          WorkspaceController.of(context, listen: false).clearSelectedItems(),
+      onTap: controller.clearSelectedItems,
       child: Scrollbar(
         controller: scrollController,
         child: GridView.builder(
@@ -66,7 +65,7 @@ class FilesGrid extends StatelessWidget {
                   child: Cell(
                     name: Utils.getEntityName(entityInfo.entity.path),
                     icon: entityInfo.isDirectory
-                        ? Icons.folder
+                        ? Utils.iconForFolder(entityInfo.path)
                         : Utils.iconForPath(entityInfo.path),
                     iconColor: entityInfo.isDirectory
                         ? Theme.of(context).colorScheme.secondary
@@ -146,7 +145,7 @@ class FileCell extends StatelessWidget {
               child: Cell(
                 name: Utils.getEntityName(entity.path),
                 icon: entity.isDirectory
-                    ? Icons.folder
+                    ? Utils.iconForFolder(entity.path)
                     : Utils.iconForPath(entity.path),
                 iconColor: entity.isDirectory
                     ? Theme.of(context).colorScheme.secondary

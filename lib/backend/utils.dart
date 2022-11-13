@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:files/backend/path_parts.dart';
+import 'package:files/backend/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:mime/mime.dart';
@@ -52,11 +53,19 @@ class Utils {
     if (mime != null) {
       return iconsPerMime[mime] ?? Icons.insert_drive_file_outlined;
     }
+
     return Icons.insert_drive_file_outlined;
   }
 
+  static IconData iconForFolder(String path) {
+    final IconData? builtinFolderIcon = folderProvider.directories[path];
+
+    return builtinFolderIcon ?? Icons.folder;
+  }
+
   static String getEntityName(String path) {
-    return path.split(Platform.pathSeparator).last;
+    final PathParts pathParts = PathParts.parse(path);
+    return pathParts.parts.isNotEmpty ? pathParts.parts.last : pathParts.root;
   }
 
   static void moveFileToDest(FileSystemEntity origin, String dest) {

@@ -179,7 +179,7 @@ class _FilesTableState extends State<FilesTable> {
         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
         child: Icon(
           row.entity.isDirectory
-              ? Icons.folder
+              ? Utils.iconForFolder(row.entity.path)
               : Utils.iconForPath(row.entity.path),
           color: row.entity.isDirectory
               ? Theme.of(context).colorScheme.secondary
@@ -405,12 +405,7 @@ class _FilesRowState extends State<_FilesRow> {
                       ),
                       child: Row(
                         children: widget.columns
-                            .map(
-                              (column) => _buildCell(
-                                widget.row.entity,
-                                column,
-                              ),
-                            )
+                            .map((e) => _buildCell(widget.row.entity, e))
                             .toList(),
                       ),
                     ),
@@ -433,7 +428,7 @@ class _FilesRowState extends State<_FilesRow> {
           children: [
             Icon(
               entity.isDirectory
-                  ? Icons.folder
+                  ? Utils.iconForFolder(entity.path)
                   : Utils.iconForPath(entity.path),
               color: entity.isDirectory
                   ? Theme.of(context).colorScheme.secondary

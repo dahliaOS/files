@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:files/backend/entity_info.dart';
 import 'package:files/backend/fetch.dart';
 import 'package:files/backend/path_parts.dart';
 import 'package:files/backend/utils.dart';
 import 'package:files/widgets/breadcrumbs_bar.dart';
+import 'package:files/widgets/context_menu/context_menu.dart';
 import 'package:files/widgets/context_menu/context_menu_entry.dart';
 import 'package:files/widgets/grid.dart';
 import 'package:files/widgets/table.dart';
@@ -63,9 +65,9 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
   @override
   void dispose() {
     controller.lastHorizontalScrollOffset =
-        horizontalController.lastPosition.pixels;
+        horizontalController.lastPosition?.pixels ?? 0;
     controller.lastVerticalScrollOffset =
-        verticalController.lastPosition.pixels;
+        verticalController.lastPosition?.pixels ?? 0;
     textController.dispose();
     controller.removeListener(onControllerUpdate);
     super.dispose();
@@ -74,7 +76,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
   void _setHidden(bool flag) {
     setState(() {
       controller.showHidden = flag;
-      controller.currentDir = controller.currentDir;
+      controller.changeCurrentDir(controller.currentDir);
     });
   }
 
@@ -103,7 +105,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     currentDir.parts.add('$folderNameDialog');
     if (folderNameDialog != null) {
       await Directory(currentDir.toPath()).create(recursive: true);
-      controller.currentDir = currentDir.toPath();
+      controller.changeCurrentDir(currentDir.toPath());
     }
   }
 
@@ -134,19 +136,34 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
           child: BreadcrumbsBar(
             path: PathParts.parse(controller.currentDir),
             onBreadcrumbPress: (value) {
-              controller.currentDir =
-                  PathParts.parse(controller.currentDir).toPath(value);
+              controller.changeCurrentDir(
+                PathParts.parse(controller.currentDir).toPath(value),
+              );
             },
             onPathSubmitted: (path) async {
               final bool exists = await Directory(path).exists();
 
               if (exists) {
-                controller.currentDir = path;
+                controller.changeCurrentDir(path);
               } else {
                 setState(() {});
               }
             },
             leading: [
+              _HistoryModifierIconButton(
+                icon: Icons.arrow_back,
+                onPressed: controller.goToPreviousHistoryEntry,
+                controller: controller,
+                onHistoryOffsetChanged: controller.setHistoryOffset,
+                enabled: controller.canGoToPreviousHistoryEntry,
+              ),
+              _HistoryModifierIconButton(
+                icon: Icons.arrow_forward,
+                onPressed: controller.goToNextHistoryEntry,
+                controller: controller,
+                onHistoryOffsetChanged: controller.setHistoryOffset,
+                enabled: controller.canGoToNextHistoryEntry,
+              ),
               IconButton(
                 icon: const Icon(
                   Icons.arrow_upward,
@@ -157,8 +174,9 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
                   setState(() {
                     final PathParts backDir =
                         PathParts.parse(controller.currentDir);
-                    controller.currentDir =
-                        backDir.toPath(backDir.parts.length - 1);
+                    controller.changeCurrentDir(
+                      backDir.toPath(backDir.parts.length - 1),
+                    );
                   });
                 },
                 splashRadius: 16,
@@ -285,7 +303,12 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
         Expanded(
           child: ChangeNotifierProvider.value(
             value: controller,
-            child: body,
+            child: controller.lastError == null
+                ? body
+                : _WorkspaceErrorWidget(
+                    error: controller.lastError!,
+                    path: controller.currentDir,
+                  ),
           ),
         ),
         SizedBox(
@@ -402,7 +425,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
 
   void _onEntityDoubleTap(EntityInfo entity) {
     if (entity.isDirectory) {
-      controller.currentDir = entity.path;
+      controller.changeCurrentDir(entity.path);
     } else {
       launchUrlString(entity.path);
     }
@@ -507,11 +530,102 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
   }
 }
 
+class _HistoryModifierIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+  final bool enabled;
+  final ValueChanged<int>? onHistoryOffsetChanged;
+  final WorkspaceController controller;
+
+  const _HistoryModifierIconButton({
+    required this.icon,
+    required this.onPressed,
+    this.enabled = true,
+    this.onHistoryOffsetChanged,
+    required this.controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ContextMenu<int>(
+      entries: controller.history.reversed
+          .mapIndexed(
+            (index, e) => ContextMenuEntry<int>(
+              id: index,
+              title: Text(
+                Utils.getEntityName(e),
+                style: TextStyle(
+                  color: index == controller.historyOffset
+                      ? Theme.of(context).colorScheme.primary
+                      : null,
+                ),
+              ),
+              onTap: () {
+                onHistoryOffsetChanged?.call(index);
+              },
+            ),
+          )
+          .toList(),
+      child: IconButton(
+        icon: Icon(icon, size: 20),
+        onPressed: enabled ? onPressed : null,
+        splashRadius: 16,
+      ),
+    );
+  }
+}
+
+class _WorkspaceErrorWidget extends StatelessWidget {
+  final OSError error;
+  final String path;
+
+  const _WorkspaceErrorWidget({
+    required this.error,
+    required this.path,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.expand(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(height: 16),
+          Text.rich(
+            TextSpan(
+              children: [
+                const TextSpan(text: "Error while accessing "),
+                TextSpan(
+                  text: path,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: "\n${error.message}",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 enum WorkspaceView { table, grid }
 
 class WorkspaceController with ChangeNotifier {
   WorkspaceController({required String initialDir}) {
-    currentDir = initialDir;
+    changeCurrentDir(initialDir);
   }
 
   double lastHorizontalScrollOffset = 0.0;
@@ -528,9 +642,13 @@ class WorkspaceController with ChangeNotifier {
   CancelableFsFetch? _fetcher;
   StreamSubscription<FileSystemEvent>? directoryStream;
   WorkspaceView _view = WorkspaceView.table; // save on SharedPreferences?
+  final List<String> _history = [];
+  int _historyOffset = 0;
+  OSError? _lastError;
 
   Future<void> getInfoForDir(Directory dir) async {
     await _fetcher?.cancel();
+    _lastError = null;
     _fetcher = CancelableFsFetch(
       directory: dir,
       onFetched: (data) {
@@ -544,7 +662,10 @@ class WorkspaceController with ChangeNotifier {
       showHidden: _showHidden,
       ascending: _ascending,
       columnIndex: _columnIndex,
-      onFileSystemException: (value) {},
+      onFileSystemException: (value) {
+        _lastError = value;
+        notifyListeners();
+      },
     );
     await _fetcher!.startFetch();
   }
@@ -559,11 +680,6 @@ class WorkspaceController with ChangeNotifier {
   }
 
   String get currentDir => _currentDir;
-  set currentDir(String value) {
-    _currentDir = value;
-    changeCurrentDir(_currentDir);
-    notifyListeners();
-  }
 
   bool get ascending => _ascending;
   set ascending(bool value) {
@@ -622,7 +738,28 @@ class WorkspaceController with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> changeCurrentDir(String newDir) async {
+  List<String> get history => List.from(_history);
+  int get historyOffset => _historyOffset;
+
+  OSError? get lastError => _lastError;
+
+  Future<void> changeCurrentDir(
+    String newDir, {
+    bool updateHistory = true,
+  }) async {
+    _currentDir = newDir;
+
+    if (updateHistory) {
+      if (_historyOffset != 0) {
+        final List<String> validHistory =
+            _history.reversed.toList().sublist(_historyOffset);
+        _history.clear();
+        _history.addAll(validHistory.reversed);
+        _historyOffset = 0;
+      }
+      _history.add(_currentDir);
+    }
+
     clearCurrentInfo();
     clearSelectedItems();
     await directoryStream?.cancel();
@@ -630,6 +767,21 @@ class WorkspaceController with ChangeNotifier {
     directoryStream =
         Directory(newDir).watch().listen(_directoryStreamListener);
   }
+
+  void setHistoryOffset(int offset) {
+    _historyOffset = 0; // hack
+    changeCurrentDir(_history.reversed.toList()[offset], updateHistory: false);
+    _historyOffset = offset;
+
+    notifyListeners();
+  }
+
+  void goToPreviousHistoryEntry() => setHistoryOffset(_historyOffset + 1);
+  void goToNextHistoryEntry() => setHistoryOffset(_historyOffset - 1);
+
+  bool get canGoToPreviousHistoryEntry =>
+      _history.length > 1 && _historyOffset < _history.length - 1;
+  bool get canGoToNextHistoryEntry => _historyOffset != 0;
 
   Future<void> _directoryStreamListener(FileSystemEvent event) async {
     await getInfoForDir(Directory(currentDir));
@@ -648,7 +800,7 @@ class CachingScrollController extends ScrollController {
   });
 
   bool _inited = false;
-  late ScrollPosition lastPosition;
+  ScrollPosition? lastPosition;
 
   @override
   void attach(ScrollPosition position) {

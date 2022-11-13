@@ -23,44 +23,31 @@ import 'package:windows_path_provider/windows_path_provider.dart';
 import 'package:xdg_directories/xdg_directories.dart';
 
 class FolderProvider {
-  final List<MapEntry<String, IconData>> directories;
+  final Map<String, IconData> directories;
 
   static Future<FolderProvider> init() async {
-    final List<MapEntry<String, IconData>> directories = [];
+    final Map<String, IconData> directories = {};
 
     if (Platform.isWindows) {
       for (final WindowsFolder folder in WindowsFolder.values) {
         final String? path = await WindowsPathProvider.getPath(folder);
 
         if (path != null) {
-          directories.add(
-            MapEntry(
-              path,
-              icons[windowsFolderToString(folder)]!,
-            ),
-          );
+          directories[path] = icons[windowsFolderToString(folder)]!;
         }
       }
     } else if (Platform.isLinux) {
-      final dirNames = getUserDirectoryNames();
-      for (final String element in dirNames) {
-        directories.add(
-          MapEntry(
-            getUserDirectory(element)!.path,
-            icons[element]!,
-          ),
-        );
-      }
+      final Set<String> dirNames = getUserDirectoryNames();
 
-      final List<String> backDir =
-          directories.first.key.split(Platform.pathSeparator)..removeLast();
-      directories.insert(
-        0,
-        MapEntry(
-          backDir.join(Platform.pathSeparator),
-          icons["HOME"]!,
-        ),
-      );
+      final List<String> backDir = getUserDirectory(dirNames.first)!
+          .path
+          .split(Platform.pathSeparator)
+        ..removeLast();
+      directories[backDir.join(Platform.pathSeparator)] = icons["HOME"]!;
+
+      for (final String element in dirNames) {
+        directories[getUserDirectory(element)!.path] = icons[element]!;
+      }
     } else {
       throw Exception("Platform not supported");
     }

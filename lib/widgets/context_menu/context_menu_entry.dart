@@ -2,10 +2,7 @@ import 'package:files/widgets/context_menu/context_menu_theme.dart';
 import 'package:files/widgets/context_menu/context_sub_menu_entry.dart';
 import 'package:flutter/material.dart';
 
-abstract class BaseContextMenuEntry extends PopupMenuEntry<String> {
-  /// Using for [represents] method.
-  final String id;
-
+abstract class BaseContextMenuEntry<T> extends PopupMenuEntry<T> {
   /// A widget to display before the title.
   /// Typically a [Icon] widget.
   final Widget? leading;
@@ -18,7 +15,6 @@ abstract class BaseContextMenuEntry extends PopupMenuEntry<String> {
   final bool enabled;
 
   const BaseContextMenuEntry({
-    required this.id,
     required this.title,
     this.leading,
     this.enabled = true,
@@ -29,11 +25,14 @@ abstract class BaseContextMenuEntry extends PopupMenuEntry<String> {
   double get height => 48;
 
   @override
-  bool represents(String? value) => id == value;
+  bool represents(T? value);
 }
 
 /// [ContextSubMenuEntry] is a [PopupMenuEntry] that displays a base menu entry.
-class ContextMenuEntry extends BaseContextMenuEntry {
+class ContextMenuEntry<T> extends BaseContextMenuEntry<T> {
+  /// Using for [represents] method.
+  final T id;
+
   /// A tap with a primary button has occurred.
   final VoidCallback? onTap;
 
@@ -42,7 +41,7 @@ class ContextMenuEntry extends BaseContextMenuEntry {
   final Widget? shortcut;
 
   const ContextMenuEntry({
-    required super.id,
+    required this.id,
     required super.title,
     this.onTap,
     super.leading,
@@ -53,6 +52,9 @@ class ContextMenuEntry extends BaseContextMenuEntry {
 
   @override
   _ContextMenuEntryState createState() => _ContextMenuEntryState();
+
+  @override
+  bool represents(T? value) => id == value;
 }
 
 class _ContextMenuEntryState extends State<ContextMenuEntry> {
@@ -116,9 +118,8 @@ class _ContextMenuEntryState extends State<ContextMenuEntry> {
 }
 
 /// A horizontal divider in a Material Design popup menu.
-class ContextMenuDivider extends BaseContextMenuEntry {
-  const ContextMenuDivider({super.key})
-      : super(id: "", title: const SizedBox());
+class ContextMenuDivider extends BaseContextMenuEntry<Never> {
+  const ContextMenuDivider({super.key}) : super(title: const SizedBox());
 
   @override
   bool represents(void value) => false;

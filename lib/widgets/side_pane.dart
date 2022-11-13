@@ -61,8 +61,8 @@ class _SidePaneState extends State<SidePane> {
               ContextMenuEntry(
                 id: 'open',
                 title: const Text("Open"),
-                onTap: () => widget.workspace.currentDir =
-                    widget.destinations[index].path,
+                onTap: () => widget.workspace
+                    .changeCurrentDir(widget.destinations[index].path),
               ),
               ContextMenuEntry(
                 id: 'open_in_new_tab',
@@ -86,8 +86,8 @@ class _SidePaneState extends State<SidePane> {
               title: Text(
                 widget.destinations[index].label,
               ),
-              onTap: () =>
-                  widget.workspace.currentDir = widget.destinations[index].path,
+              onTap: () => widget.workspace
+                  .changeCurrentDir(widget.destinations[index].path),
             ),
           ),
         ),
