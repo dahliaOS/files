@@ -47,7 +47,7 @@ class _ProvidersSingleton {
     WidgetsFlutterBinding.ensureInitialized();
     final dir = await getApplicationDocumentsDirectory();
     _isar = await Isar.open(
-      schemas: [EntityStatSchema],
+      [EntityStatSchema],
       directory: p.join(dir.path, 'isar'),
     );
     _folderProvider = await FolderProvider.init();

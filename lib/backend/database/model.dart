@@ -10,8 +10,7 @@ part 'model.g.dart';
 
 @Collection()
 class EntityStat with ChangeNotifier {
-  @Id()
-  int? id;
+  Id? id;
 
   @Index(unique: true, type: IndexType.hash)
   late String path;
@@ -20,8 +19,8 @@ class EntityStat with ChangeNotifier {
   late DateTime modified;
   late DateTime accessed;
 
-  @FileSystemEntityTypeConverter()
-  late FileSystemEntityType type;
+  @enumerated
+  late EntityType type;
   late int mode;
   late int size;
 
@@ -43,7 +42,7 @@ class EntityStat with ChangeNotifier {
           changed: stat.changed,
           modified: stat.modified,
           accessed: stat.accessed,
-          type: stat.type,
+          type: EntityType.fromDartIo(stat.type),
           mode: stat.mode,
           size: stat.size,
         );
@@ -55,7 +54,7 @@ class EntityStat with ChangeNotifier {
       changed = ioStat.changed;
       modified = ioStat.modified;
       accessed = ioStat.accessed;
-      type = ioStat.type;
+      type = EntityType.fromDartIo(ioStat.type);
       mode = ioStat.mode;
       size = ioStat.size;
       await helper.set(this);
@@ -67,43 +66,42 @@ class EntityStat with ChangeNotifier {
     return changed == other.changed &&
         modified == other.modified &&
         accessed == other.accessed &&
-        type == other.type &&
+        type == EntityType.fromDartIo(other.type) &&
         mode == other.mode &&
         size == other.size;
   }
 }
 
-class FileSystemEntityTypeConverter
-    extends TypeConverter<FileSystemEntityType, int> {
-  const FileSystemEntityTypeConverter();
+enum EntityType {
+  file,
+  directory,
+  link,
+  notFound;
 
-  @override
-  FileSystemEntityType fromIsar(int object) {
-    switch (object) {
-      case 0:
-        return FileSystemEntityType.file;
-      case 1:
-        return FileSystemEntityType.directory;
-      case 2:
-        return FileSystemEntityType.link;
-      case 3:
+  static EntityType fromDartIo(FileSystemEntityType type) {
+    switch (type) {
+      case FileSystemEntityType.file:
+        return EntityType.file;
+      case FileSystemEntityType.directory:
+        return EntityType.directory;
+      case FileSystemEntityType.link:
+        return EntityType.link;
+      case FileSystemEntityType.notFound:
       default:
-        return FileSystemEntityType.notFound;
+        return EntityType.notFound;
     }
   }
 
-  @override
-  int toIsar(FileSystemEntityType object) {
-    switch (object) {
-      case FileSystemEntityType.file:
-        return 0;
-      case FileSystemEntityType.directory:
-        return 1;
-      case FileSystemEntityType.link:
-        return 2;
-      case FileSystemEntityType.notFound:
-      default:
-        return 3;
+  FileSystemEntityType get toDartIo {
+    switch (this) {
+      case EntityType.file:
+        return FileSystemEntityType.file;
+      case EntityType.directory:
+        return FileSystemEntityType.directory;
+      case EntityType.link:
+        return FileSystemEntityType.link;
+      case EntityType.notFound:
+        return FileSystemEntityType.notFound;
     }
   }
 }
