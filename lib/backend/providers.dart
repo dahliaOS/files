@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:files/backend/database/helper.dart';
 import 'package:files/backend/database/model.dart';
 import 'package:files/backend/folder_provider.dart';
@@ -48,7 +50,7 @@ class _ProvidersSingleton {
     final dir = await getApplicationDocumentsDirectory();
     _isar = await Isar.open(
       [EntityStatSchema],
-      directory: p.join(dir.path, 'isar'),
+      directory: isarPath(dir),
     );
     _folderProvider = await FolderProvider.init();
     _helper = EntityStatCacheHelper();
@@ -63,17 +65,21 @@ class _ProvidersSingleton {
     _cacheProxy = null;
     _inited = false;
   }
+
+  String isarPath(Directory dir) {
+    final String path = p.join(dir.path, 'isar');
+    if (!Directory(path).existsSync()) Directory(path).create();
+    return path;
+  }
 }
 
 Future<void> initProviders() async => _ProvidersSingleton.instance._init();
 
-Future<void> disposeProviders() async =>
-    _ProvidersSingleton.instance._dispose();
+Future<void> disposeProviders() async => _ProvidersSingleton.instance._dispose();
 
 Isar get isar => _ProvidersSingleton.instance.isar;
 
-FolderProvider get folderProvider =>
-    _ProvidersSingleton.instance.folderProvider;
+FolderProvider get folderProvider => _ProvidersSingleton.instance.folderProvider;
 
 EntityStatCacheHelper get helper => _ProvidersSingleton.instance.helper;
 
