@@ -84,7 +84,7 @@ const EntityStatSchema = CollectionSchema(
   getId: _entityStatGetId,
   getLinks: _entityStatGetLinks,
   attach: _entityStatAttach,
-  version: '3.0.2',
+  version: '3.0.5',
 );
 
 int _entityStatEstimateSize(

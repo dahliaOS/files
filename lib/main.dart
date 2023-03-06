@@ -14,10 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-//credits: @HrX03 for basic UI https://github.com/HrX03/Flux
-
-import 'dart:async';
-
 import 'package:animations/animations.dart';
 import 'package:files/backend/providers.dart';
 import 'package:files/backend/utils.dart';
@@ -27,16 +23,11 @@ import 'package:files/widgets/tab_strip.dart';
 import 'package:files/widgets/workspace.dart';
 import 'package:flutter/material.dart';
 
-// ignore: avoid_void_async
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await init();
+  await initProviders();
 
   runApp(const Files());
-}
-
-Future<void> init() async {
-  await initProviders();
 }
 
 class Files extends StatelessWidget {
