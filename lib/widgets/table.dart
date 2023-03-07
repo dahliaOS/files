@@ -143,7 +143,7 @@ class FilesTable extends StatelessWidget {
               ? Utils.iconForFolder(row.entity.path)
               : Utils.iconForPath(row.entity.path),
           color: row.entity.isDirectory
-              ? Theme.of(context).colorScheme.secondary
+              ? Theme.of(context).colorScheme.primary
               : Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
           size: 64,
         ),
@@ -348,7 +348,7 @@ class _FilesRowState extends State<_FilesRow> {
               ),
               child: Material(
                 color: widget.row.selected
-                    ? Theme.of(context).colorScheme.secondary.withOpacity(0.2)
+                    ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
                     : Colors.transparent,
                 clipBehavior: Clip.antiAlias,
                 child: TimedInkwell(
@@ -392,7 +392,7 @@ class _FilesRowState extends State<_FilesRow> {
                   ? Utils.iconForFolder(entity.path)
                   : Utils.iconForPath(entity.path),
               color: entity.isDirectory
-                  ? Theme.of(context).colorScheme.secondary
+                  ? Theme.of(context).colorScheme.primary
                   : null,
             ),
             const SizedBox(width: 16),

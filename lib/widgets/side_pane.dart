@@ -82,7 +82,7 @@ class _SidePaneState extends State<SidePane> {
               selected: widget.workspace.currentDir ==
                   widget.destinations[index].path,
               selectedTileColor:
-                  Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                  Theme.of(context).colorScheme.primary.withOpacity(0.1),
               title: Text(
                 widget.destinations[index].label,
               ),

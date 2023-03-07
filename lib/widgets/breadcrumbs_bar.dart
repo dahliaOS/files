@@ -284,7 +284,7 @@ class _LoadingIndicatorState extends State<_LoadingIndicator>
           painter: _LoadingIndicatorPainter(
             progress: progressController.value,
             opacity: fadeController.value,
-            color: Theme.of(context).colorScheme.secondary,
+            color: Theme.of(context).colorScheme.primary,
           ),
           child: child,
         );

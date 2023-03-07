@@ -80,7 +80,7 @@ class _FilesGridState extends State<FilesGrid> {
                         ? Utils.iconForFolder(entityInfo.path)
                         : Utils.iconForPath(entityInfo.path),
                     iconColor: entityInfo.isDirectory
-                        ? Theme.of(context).colorScheme.secondary
+                        ? Theme.of(context).colorScheme.primary
                         : null,
                   ),
                 ),
@@ -137,7 +137,7 @@ class FileCell extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: selected
-              ? Theme.of(context).colorScheme.secondary.withOpacity(0.2)
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(4),
         ),
@@ -160,7 +160,7 @@ class FileCell extends StatelessWidget {
                     ? Utils.iconForFolder(entity.path)
                     : Utils.iconForPath(entity.path),
                 iconColor: entity.isDirectory
-                    ? Theme.of(context).colorScheme.secondary
+                    ? Theme.of(context).colorScheme.primary
                     : null,
               ),
             ),
