@@ -20,7 +20,7 @@ class CancelableFsFetch {
   final ValueChanged<double?>? onProgressChange;
   final ValueChanged<OSError?>? onFileSystemException;
   final bool ascending;
-  final int columnIndex;
+  final SortType sortType;
   final bool showHidden;
 
   CancelableFsFetch({
@@ -30,7 +30,7 @@ class CancelableFsFetch {
     this.onProgressChange,
     this.onFileSystemException,
     this.ascending = false,
-    this.columnIndex = 0,
+    this.sortType = SortType.name,
     this.showHidden = false,
   });
 
@@ -112,7 +112,7 @@ class CancelableFsFetch {
       item1 = b;
     }
 
-    switch (columnIndex) {
+    switch (sortType.index) {
       case 0:
         return Utils.getEntityName(item1.path.toLowerCase())
             .compareTo(Utils.getEntityName(item2.path.toLowerCase()));

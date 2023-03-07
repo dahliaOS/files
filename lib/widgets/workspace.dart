@@ -6,9 +6,11 @@ import 'package:files/backend/entity_info.dart';
 import 'package:files/backend/fetch.dart';
 import 'package:files/backend/path_parts.dart';
 import 'package:files/backend/utils.dart';
+import 'package:files/backend/workspace.dart';
 import 'package:files/widgets/breadcrumbs_bar.dart';
 import 'package:files/widgets/context_menu/context_menu.dart';
 import 'package:files/widgets/context_menu/context_menu_entry.dart';
+import 'package:files/widgets/folder_dialog.dart';
 import 'package:files/widgets/grid.dart';
 import 'package:files/widgets/table.dart';
 import 'package:filesize/filesize.dart';
@@ -30,36 +32,25 @@ class FilesWorkspace extends StatefulWidget {
 }
 
 class _FilesWorkspaceState extends State<FilesWorkspace> {
-  /* TO KEEP */
-  late final CachingScrollController horizontalController;
-  late final CachingScrollController verticalController;
-  late TextEditingController textController;
+  late CachingScrollController horizontalController;
+  late CachingScrollController verticalController;
 
   WorkspaceController get controller => widget.controller;
 
-  String folderName = ' ';
-
-  IconData get viewIcon {
-    switch (controller.view) {
-      case WorkspaceView.grid:
-        return Icons.grid_view_outlined;
-      case WorkspaceView.table:
-      default:
-        return Icons.list_outlined;
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
+  void _resetScrollControllers() {
     horizontalController = CachingScrollController(
       initialScrollOffset: controller.lastHorizontalScrollOffset,
     );
     verticalController = CachingScrollController(
       initialScrollOffset: controller.lastVerticalScrollOffset,
     );
-    textController = TextEditingController();
-    controller.addListener(onControllerUpdate);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _resetScrollControllers();
+    controller.addListener(_onControllerUpdate);
   }
 
   @override
@@ -68,39 +59,31 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
         horizontalController.lastPosition?.pixels ?? 0;
     controller.lastVerticalScrollOffset =
         verticalController.lastPosition?.pixels ?? 0;
-    textController.dispose();
-    controller.removeListener(onControllerUpdate);
+    controller.removeListener(_onControllerUpdate);
     super.dispose();
   }
 
   void _setHidden(bool flag) {
-    setState(() {
-      controller.showHidden = flag;
-      controller.changeCurrentDir(controller.currentDir);
-    });
+    controller.showHidden = flag;
+    controller.changeCurrentDir(controller.currentDir);
   }
 
   void _setSortType(SortType? type) {
-    setState(() {
-      if (type != null) {
-        controller.sortType = type;
-        controller.columnIndex = type.index;
-        controller.changeCurrentDir(controller.currentDir);
-      }
-    });
+    if (type != null) {
+      controller.sortType = type;
+      controller.changeCurrentDir(controller.currentDir);
+    }
   }
 
   void _setSortOrder(bool ascending) {
-    setState(() {
-      if (ascending != controller.ascending) {
-        controller.ascending = ascending;
-        controller.changeCurrentDir(controller.currentDir);
-      }
-    });
+    if (ascending != controller.ascending) {
+      controller.ascending = ascending;
+      controller.changeCurrentDir(controller.currentDir);
+    }
   }
 
   Future<void> _createFolder() async {
-    final folderNameDialog = await openDialog();
+    final folderNameDialog = await promptNewFolder();
     final PathParts currentDir = PathParts.parse(controller.currentDir);
     currentDir.parts.add('$folderNameDialog');
     if (folderNameDialog != null) {
@@ -109,269 +92,23 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     }
   }
 
-  void _switchWorkspaceView() {
+  void _setWorkspaceView(WorkspaceView view) {
+    if (controller.view == view) return;
+
     setState(() {
-      switch (controller.view) {
-        case WorkspaceView.table:
-          controller.view = WorkspaceView.grid;
-          break;
-        case WorkspaceView.grid:
-          controller.view = WorkspaceView.table;
-          break;
-      }
+      controller.lastHorizontalScrollOffset = 0;
+      controller.lastVerticalScrollOffset = 0;
+      _resetScrollControllers();
+      controller.view = view;
     });
   }
 
-  void onControllerUpdate() {
-    if (mounted) setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: 48,
-          child: BreadcrumbsBar(
-            path: PathParts.parse(controller.currentDir),
-            onBreadcrumbPress: (value) {
-              controller.changeCurrentDir(value);
-            },
-            onPathSubmitted: (path) async {
-              final bool exists = await Directory(path).exists();
-
-              if (exists) {
-                controller.changeCurrentDir(path);
-              } else {
-                setState(() {});
-              }
-            },
-            leading: [
-              _HistoryModifierIconButton(
-                icon: Icons.arrow_back,
-                onPressed: controller.goToPreviousHistoryEntry,
-                controller: controller,
-                onHistoryOffsetChanged: controller.setHistoryOffset,
-                enabled: controller.canGoToPreviousHistoryEntry,
-              ),
-              _HistoryModifierIconButton(
-                icon: Icons.arrow_forward,
-                onPressed: controller.goToNextHistoryEntry,
-                controller: controller,
-                onHistoryOffsetChanged: controller.setHistoryOffset,
-                enabled: controller.canGoToNextHistoryEntry,
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.arrow_upward,
-                  size: 20,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  setState(() {
-                    final PathParts backDir =
-                        PathParts.parse(controller.currentDir);
-                    controller.changeCurrentDir(
-                      backDir.toPath(backDir.parts.length - 1),
-                    );
-                  });
-                },
-                splashRadius: 16,
-              ),
-            ],
-            actions: [
-              IconButton(
-                icon: Icon(
-                  viewIcon,
-                  size: 20,
-                  color: Colors.white,
-                ),
-                onPressed: _switchWorkspaceView,
-                splashRadius: 16,
-              ),
-              PopupMenuButton<String>(
-                splashRadius: 16,
-                color: Theme.of(context).colorScheme.surface,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(4)),
-                ),
-                offset: const Offset(0, 50),
-                itemBuilder: (context) => [
-                  ContextMenuEntry(
-                    id: 'showHidden',
-                    shortcut: Switch(
-                      value: controller.showHidden,
-                      onChanged: (flag) {
-                        _setHidden(flag);
-                        Navigator.pop(context);
-                      },
-                    ),
-                    title: const Text('Show hidden files'),
-                    onTap: () => _setHidden(!controller.showHidden),
-                  ),
-                  ContextMenuEntry(
-                    id: 'createFolder',
-                    title: const Text('Create new folder'),
-                    onTap: () => _createFolder(),
-                  ),
-                  const ContextMenuDivider(),
-                  ContextMenuEntry(
-                    id: 'name',
-                    title: const Text('Name'),
-                    onTap: () => _setSortType(SortType.name),
-                    shortcut: Radio<SortType>(
-                      value: SortType.name,
-                      groupValue: controller.sortType,
-                      onChanged: (SortType? type) {
-                        _setSortType(type);
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                  ContextMenuEntry(
-                    id: 'modifies',
-                    title: const Text('Modifies'),
-                    onTap: () => _setSortType(SortType.modified),
-                    shortcut: Radio<SortType>(
-                      value: SortType.modified,
-                      groupValue: controller.sortType,
-                      onChanged: (SortType? type) {
-                        _setSortType(type);
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                  ContextMenuEntry(
-                    id: 'size',
-                    title: const Text('Size'),
-                    onTap: () => _setSortType(SortType.size),
-                    shortcut: Radio<SortType>(
-                      value: SortType.size,
-                      groupValue: controller.sortType,
-                      onChanged: (SortType? type) {
-                        _setSortType(type);
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                  ContextMenuEntry(
-                    id: 'type',
-                    title: const Text('Type'),
-                    onTap: () => _setSortType(SortType.type),
-                    shortcut: Radio<SortType>(
-                      value: SortType.type,
-                      groupValue: controller.sortType,
-                      onChanged: (SortType? type) {
-                        _setSortType(type);
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                  const ContextMenuDivider(),
-                  ContextMenuEntry(
-                    id: 'ascending',
-                    title: const Text('Ascending'),
-                    onTap: () => _setSortOrder(true),
-                    leading:
-                        controller.ascending ? const Icon(Icons.check) : null,
-                  ),
-                  ContextMenuEntry(
-                    id: 'descending',
-                    title: const Text('Descending'),
-                    onTap: () => _setSortOrder(false),
-                    leading:
-                        controller.ascending ? null : const Icon(Icons.check),
-                  ),
-                  const ContextMenuDivider(),
-                  ContextMenuEntry(
-                    id: 'reload',
-                    title: const Text('Reload'),
-                    onTap: () async {
-                      await controller
-                          .getInfoForDir(Directory(controller.currentDir));
-                    },
-                  ),
-                ],
-              ),
-            ],
-            loadingProgress: controller.loadingProgress,
-          ),
-        ),
-        Expanded(
-          child: ChangeNotifierProvider.value(
-            value: controller,
-            child: controller.lastError == null
-                ? body
-                : _WorkspaceErrorWidget(
-                    error: controller.lastError!,
-                    path: controller.currentDir,
-                  ),
-          ),
-        ),
-        SizedBox(
-          height: 32,
-          child: Material(
-            color: Theme.of(context).colorScheme.background,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
-                children: [
-                  Text("${controller.currentInfo?.length ?? 0} items"),
-                  const Spacer(),
-                  Text(selectedItemsLabel),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
+  Future<String?> promptNewFolder() {
+    return showDialog(
+      context: context,
+      builder: (context) => const FolderDialog(),
     );
   }
-
-  Future<String?> openDialog() => showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text("New Folder"),
-          content: TextField(
-            autofocus: true,
-            decoration: const InputDecoration(
-              hintText: "Folder name",
-            ),
-            controller: textController,
-            onSubmitted: (value) {
-              Navigator.pop(context, value);
-            },
-          ),
-          actions: [
-            TextButton(
-              child: const Text("Cancel"),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-            TextButton(
-              onPressed: textController.text != ""
-                  ? () => showDialog(
-                        context: context,
-                        builder: (BuildContext context) => AlertDialog(
-                          title: const Text("Folder name cannot be empty"),
-                          actions: [
-                            TextButton(
-                              child: const Text("OK"),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ],
-                        ),
-                      )
-                  : () => Navigator.of(context).pop(textController.text),
-              child: const Text("Create"),
-            ),
-          ],
-        ),
-      );
 
   String get selectedItemsLabel {
     if (controller.selectedItems.isEmpty) return "";
@@ -418,6 +155,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     } else {
       controller.addSelectedItem(entity);
     }
+
     setState(() {});
   }
 
@@ -429,102 +167,350 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     }
   }
 
-  // For move more than one file
+  // To move more than one file
   void _onDropAccepted(String path) {
-    for (final entity in controller.selectedItems) {
+    for (final EntityInfo entity in controller.selectedItems) {
       Utils.moveFileToDest(entity.entity, path);
     }
   }
 
-  Widget get body {
-    return Builder(
-      builder: (context) {
-        if (controller.currentInfo != null) {
-          if (controller.currentInfo!.isNotEmpty) {
-            switch (controller.view) {
-              case WorkspaceView.grid:
-                return FilesGrid(
-                  entities: controller.currentInfo!,
-                  onEntityTap: _onEntityTap,
-                  onEntityDoubleTap: _onEntityDoubleTap,
-                  onDropAccept: _onDropAccepted,
-                );
-              default:
-                return FilesTable(
-                  rows: controller.currentInfo!
-                      .map(
-                        (entity) => FilesRow(
-                          entity: entity,
-                          selected: controller.selectedItems.contains(entity),
-                          onTap: () => _onEntityTap(entity),
-                          onDoubleTap: () => _onEntityDoubleTap(entity),
-                        ),
-                      )
-                      .toList(),
-                  columns: [
-                    FilesColumn(
-                      width: controller.columnWidths[0],
-                      type: FilesColumnType.name,
-                    ),
-                    FilesColumn(
-                      width: controller.columnWidths[1],
-                      type: FilesColumnType.date,
-                    ),
-                    FilesColumn(
-                      width: controller.columnWidths[2],
-                      type: FilesColumnType.type,
-                      allowSorting: false,
-                    ),
-                    FilesColumn(
-                      width: controller.columnWidths[3],
-                      type: FilesColumnType.size,
-                    ),
-                  ],
-                  ascending: controller.ascending,
-                  columnIndex: controller.columnIndex,
-                  onHeaderCellTap: (newAscending, newColumnIndex) {
-                    if (controller.columnIndex == newColumnIndex) {
-                      controller.ascending = newAscending;
-                    } else {
-                      controller.ascending = true;
-                      controller.columnIndex = newColumnIndex;
-                    }
-                    controller.changeCurrentDir(controller.currentDir);
-                  },
-                  onHeaderResize: (newColumnIndex, details) {
-                    controller.addToColumnWidth(
-                      newColumnIndex,
-                      details.primaryDelta!,
-                    );
-                  },
-                  horizontalController: horizontalController,
-                  verticalController: verticalController,
-                );
-            }
-          } else {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(
-                    Icons.folder_open_outlined,
-                    size: 80,
+  List<PopupMenuEntry<String>> _getMenuEntries(BuildContext context) {
+    return [
+      ContextMenuEntry(
+        id: 'showHidden',
+        shortcut: Switch(
+          value: controller.showHidden,
+          onChanged: (flag) {
+            _setHidden(flag);
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text('Show hidden files'),
+        onTap: () => _setHidden(!controller.showHidden),
+      ),
+      ContextMenuEntry(
+        id: 'createFolder',
+        title: const Text('Create new folder'),
+        onTap: () => _createFolder(),
+      ),
+      const ContextMenuDivider(),
+      ContextMenuEntry(
+        id: 'name',
+        title: const Text('Name'),
+        onTap: () => _setSortType(SortType.name),
+        shortcut: Radio<SortType>(
+          value: SortType.name,
+          groupValue: controller.sortType,
+          onChanged: (SortType? type) {
+            _setSortType(type);
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      ContextMenuEntry(
+        id: 'modifies',
+        title: const Text('Modifies'),
+        onTap: () => _setSortType(SortType.modified),
+        shortcut: Radio<SortType>(
+          value: SortType.modified,
+          groupValue: controller.sortType,
+          onChanged: (SortType? type) {
+            _setSortType(type);
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      ContextMenuEntry(
+        id: 'size',
+        title: const Text('Size'),
+        onTap: () => _setSortType(SortType.size),
+        shortcut: Radio<SortType>(
+          value: SortType.size,
+          groupValue: controller.sortType,
+          onChanged: (SortType? type) {
+            _setSortType(type);
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      ContextMenuEntry(
+        id: 'type',
+        title: const Text('Type'),
+        onTap: () => _setSortType(SortType.type),
+        shortcut: Radio<SortType>(
+          value: SortType.type,
+          groupValue: controller.sortType,
+          onChanged: (SortType? type) {
+            _setSortType(type);
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      const ContextMenuDivider(),
+      ContextMenuEntry(
+        id: 'ascending',
+        title: const Text('Ascending'),
+        onTap: () => _setSortOrder(true),
+        leading: controller.ascending ? const Icon(Icons.check) : null,
+      ),
+      ContextMenuEntry(
+        id: 'descending',
+        title: const Text('Descending'),
+        onTap: () => _setSortOrder(false),
+        leading: controller.ascending ? null : const Icon(Icons.check),
+      ),
+      const ContextMenuDivider(),
+      ContextMenuEntry(
+        id: 'reload',
+        title: const Text('Reload'),
+        onTap: () async {
+          await controller.getInfoForDir(Directory(controller.currentDir));
+        },
+      ),
+    ];
+  }
+
+  void _onControllerUpdate() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 48,
+          child: _WorkspaceTopbar(
+            controller: controller,
+            popupBuilder: _getMenuEntries,
+            onWorkspaceViewChanged: _setWorkspaceView,
+          ),
+        ),
+        Expanded(
+          child: ChangeNotifierProvider.value(
+            value: controller,
+            child: controller.lastError == null
+                ? getBody(context)
+                : _WorkspaceErrorWidget(
+                    error: controller.lastError!,
+                    path: controller.currentDir,
                   ),
-                  Text(
-                    "This Folder is Empty",
-                    style: TextStyle(fontSize: 17),
-                  )
+          ),
+        ),
+        SizedBox(
+          height: 32,
+          child: Material(
+            color: Theme.of(context).colorScheme.background,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  Text("${controller.currentInfo?.length ?? 0} items"),
+                  const Spacer(),
+                  Text(selectedItemsLabel),
                 ],
               ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget getBody(BuildContext context) {
+    if (controller.currentInfo == null) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (controller.currentInfo!.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.folder_open_outlined,
+              size: 80,
+            ),
+            Text(
+              "This Folder is Empty",
+              style: TextStyle(fontSize: 17),
+            )
+          ],
+        ),
+      );
+    }
+
+    switch (controller.view) {
+      case WorkspaceView.grid:
+        return FilesGrid(
+          entities: controller.currentInfo!,
+          onEntityTap: _onEntityTap,
+          onEntityDoubleTap: _onEntityDoubleTap,
+          onDropAccept: _onDropAccepted,
+          controller: verticalController,
+          size: controller.gridState.size,
+          onSizeChange: (value) =>
+              controller.setGridState(GridViewState(size: value)),
+        );
+      default:
+        return FilesTable(
+          rows: controller.currentInfo!
+              .map(
+                (entity) => FilesRow(
+                  entity: entity,
+                  selected: controller.selectedItems.contains(entity),
+                  onTap: () => _onEntityTap(entity),
+                  onDoubleTap: () => _onEntityDoubleTap(entity),
+                ),
+              )
+              .toList(),
+          columns: [
+            FilesColumn(
+              width: controller.tableState.widths[0],
+              type: FilesColumnType.name,
+            ),
+            FilesColumn(
+              width: controller.tableState.widths[1],
+              type: FilesColumnType.date,
+            ),
+            FilesColumn(
+              width: controller.tableState.widths[2],
+              type: FilesColumnType.type,
+              allowSorting: false,
+            ),
+            FilesColumn(
+              width: controller.tableState.widths[3],
+              type: FilesColumnType.size,
+            ),
+          ],
+          ascending: controller.ascending,
+          columnIndex: controller.sortType.index,
+          onHeaderCellTap: (newAscending, newColumnIndex) {
+            if (controller.sortType.index == newColumnIndex) {
+              controller.ascending = newAscending;
+            } else {
+              controller.ascending = true;
+              controller.sortType = SortType.values[newColumnIndex];
+            }
+            controller.changeCurrentDir(controller.currentDir);
+          },
+          onHeaderResize: (newColumnIndex, details) {
+            controller.setTableState(
+              controller.tableState.applyDeltaToWidth(
+                newColumnIndex,
+                details.primaryDelta!,
+              ),
             );
-          }
+          },
+          horizontalController: horizontalController,
+          verticalController: verticalController,
+        );
+    }
+  }
+}
+
+class _WorkspaceTopbar extends StatelessWidget {
+  final WorkspaceController controller;
+  final ValueChanged<WorkspaceView>? onWorkspaceViewChanged;
+  final PopupMenuItemBuilder<String>? popupBuilder;
+
+  const _WorkspaceTopbar({
+    required this.controller,
+    this.onWorkspaceViewChanged,
+    this.popupBuilder,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BreadcrumbsBar(
+      path: PathParts.parse(controller.currentDir),
+      onBreadcrumbPress: (value) {
+        controller.changeCurrentDir(value);
+      },
+      onPathSubmitted: (path) async {
+        final bool exists = await Directory(path).exists();
+
+        if (exists) {
+          controller.changeCurrentDir(path);
         } else {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          controller.changeCurrentDir(controller.currentDir);
         }
       },
+      leading: [
+        _HistoryModifierIconButton(
+          icon: Icons.arrow_back,
+          onPressed: controller.goToPreviousHistoryEntry,
+          controller: controller,
+          onHistoryOffsetChanged: controller.setHistoryOffset,
+          enabled: controller.canGoToPreviousHistoryEntry,
+        ),
+        _HistoryModifierIconButton(
+          icon: Icons.arrow_forward,
+          onPressed: controller.goToNextHistoryEntry,
+          controller: controller,
+          onHistoryOffsetChanged: controller.setHistoryOffset,
+          enabled: controller.canGoToNextHistoryEntry,
+        ),
+        IconButton(
+          icon: const Icon(
+            Icons.arrow_upward,
+            size: 20,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            final PathParts backDir = PathParts.parse(controller.currentDir);
+            controller.changeCurrentDir(
+              backDir.toPath(backDir.parts.length - 1),
+            );
+          },
+          splashRadius: 16,
+        ),
+      ],
+      actions: [
+        IconButton(
+          icon: Icon(
+            viewIcon,
+            size: 20,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            switch (controller.view) {
+              case WorkspaceView.table:
+                onWorkspaceViewChanged?.call(WorkspaceView.grid);
+                break;
+              case WorkspaceView.grid:
+                onWorkspaceViewChanged?.call(WorkspaceView.table);
+                break;
+            }
+          },
+          splashRadius: 16,
+        ),
+        if (popupBuilder != null)
+          PopupMenuButton<String>(
+            splashRadius: 16,
+            color: Theme.of(context).colorScheme.surface,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(4)),
+            ),
+            offset: const Offset(0, 50),
+            itemBuilder: popupBuilder!,
+          ),
+      ],
+      loadingProgress: controller.loadingProgress,
     );
+  }
+
+  IconData get viewIcon {
+    switch (controller.view) {
+      case WorkspaceView.grid:
+        return Icons.grid_view_outlined;
+      case WorkspaceView.table:
+      default:
+        return Icons.list_outlined;
+    }
   }
 }
 
@@ -616,177 +602,6 @@ class _WorkspaceErrorWidget extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-enum WorkspaceView { table, grid }
-
-class WorkspaceController with ChangeNotifier {
-  WorkspaceController({required String initialDir}) {
-    changeCurrentDir(initialDir);
-  }
-
-  double lastHorizontalScrollOffset = 0.0;
-  double lastVerticalScrollOffset = 0.0;
-  late String _currentDir;
-  final List<double> _columnWidths = [480, 180, 120, 120];
-  bool _ascending = true;
-  bool _showHidden = false;
-  int _columnIndex = 0;
-  SortType _sortType = SortType.name;
-  final List<EntityInfo> _selectedItems = [];
-  List<EntityInfo>? _currentInfo;
-  double? _loadingProgress;
-  CancelableFsFetch? _fetcher;
-  StreamSubscription<FileSystemEvent>? directoryStream;
-  WorkspaceView _view = WorkspaceView.table; // save on SharedPreferences?
-  final List<String> _history = [];
-  int _historyOffset = 0;
-  OSError? _lastError;
-
-  Future<void> getInfoForDir(Directory dir) async {
-    await _fetcher?.cancel();
-    _lastError = null;
-    _fetcher = CancelableFsFetch(
-      directory: dir,
-      onFetched: (data) {
-        _currentInfo = data;
-        notifyListeners();
-      },
-      onProgressChange: (value) {
-        _loadingProgress = value;
-        notifyListeners();
-      },
-      showHidden: _showHidden,
-      ascending: _ascending,
-      columnIndex: _columnIndex,
-      onFileSystemException: (value) {
-        _lastError = value;
-        notifyListeners();
-      },
-    );
-    await _fetcher!.startFetch();
-  }
-
-  List<EntityInfo>? get currentInfo =>
-      _currentInfo != null ? List.unmodifiable(_currentInfo!) : null;
-  double? get loadingProgress => _loadingProgress;
-
-  void clearCurrentInfo() {
-    _currentInfo = null;
-    notifyListeners();
-  }
-
-  String get currentDir => _currentDir;
-
-  bool get ascending => _ascending;
-  set ascending(bool value) {
-    _ascending = value;
-    notifyListeners();
-  }
-
-  bool get showHidden => _showHidden;
-  set showHidden(bool value) {
-    _showHidden = value;
-    notifyListeners();
-  }
-
-  int get columnIndex => _columnIndex;
-  set columnIndex(int value) {
-    _columnIndex = value;
-    notifyListeners();
-  }
-
-  SortType get sortType => _sortType;
-  set sortType(SortType value) {
-    _sortType = value;
-    notifyListeners();
-  }
-
-  WorkspaceView get view => _view;
-  set view(WorkspaceView value) {
-    _view = value;
-    notifyListeners();
-  }
-
-  List<double> get columnWidths => List.unmodifiable(_columnWidths);
-  void setColumnWidth(int index, double width) {
-    _columnWidths[index] = width;
-    notifyListeners();
-  }
-
-  void addToColumnWidth(int index, double delta) {
-    _columnWidths[index] += delta;
-    notifyListeners();
-  }
-
-  List<EntityInfo> get selectedItems => List.unmodifiable(_selectedItems);
-  void addSelectedItem(EntityInfo info) {
-    _selectedItems.add(info);
-    notifyListeners();
-  }
-
-  void removeSelectedItem(EntityInfo info) {
-    _selectedItems.remove(info);
-    notifyListeners();
-  }
-
-  void clearSelectedItems() {
-    _selectedItems.clear();
-    notifyListeners();
-  }
-
-  List<String> get history => List.from(_history);
-  int get historyOffset => _historyOffset;
-
-  OSError? get lastError => _lastError;
-
-  Future<void> changeCurrentDir(
-    String newDir, {
-    bool updateHistory = true,
-  }) async {
-    _currentDir = newDir;
-
-    if (updateHistory) {
-      if (_historyOffset != 0) {
-        final List<String> validHistory =
-            _history.reversed.toList().sublist(_historyOffset);
-        _history.clear();
-        _history.addAll(validHistory.reversed);
-        _historyOffset = 0;
-      }
-      _history.add(_currentDir);
-    }
-
-    clearCurrentInfo();
-    clearSelectedItems();
-    await directoryStream?.cancel();
-    await getInfoForDir(Directory(newDir));
-    directoryStream =
-        Directory(newDir).watch().listen(_directoryStreamListener);
-  }
-
-  void setHistoryOffset(int offset) {
-    _historyOffset = 0; // hack
-    changeCurrentDir(_history.reversed.toList()[offset], updateHistory: false);
-    _historyOffset = offset;
-
-    notifyListeners();
-  }
-
-  void goToPreviousHistoryEntry() => setHistoryOffset(_historyOffset + 1);
-  void goToNextHistoryEntry() => setHistoryOffset(_historyOffset - 1);
-
-  bool get canGoToPreviousHistoryEntry =>
-      _history.length > 1 && _historyOffset < _history.length - 1;
-  bool get canGoToNextHistoryEntry => _historyOffset != 0;
-
-  Future<void> _directoryStreamListener(FileSystemEvent event) async {
-    await getInfoForDir(Directory(currentDir));
-  }
-
-  static WorkspaceController of(BuildContext context, {bool listen = true}) {
-    return Provider.of<WorkspaceController>(context, listen: listen);
   }
 }
 

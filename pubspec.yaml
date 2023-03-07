@@ -8,8 +8,6 @@ environment:
   sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
-  animations: any
-
   collection: ^1.16.0
 
   ffi: ^2.0.1

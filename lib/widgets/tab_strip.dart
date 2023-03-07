@@ -1,7 +1,7 @@
 import 'package:files/backend/utils.dart';
+import 'package:files/backend/workspace.dart';
 import 'package:files/widgets/context_menu/context_menu.dart';
 import 'package:files/widgets/context_menu/context_menu_entry.dart';
-import 'package:files/widgets/workspace.dart';
 import 'package:flutter/material.dart';
 
 class TabStrip extends StatelessWidget {

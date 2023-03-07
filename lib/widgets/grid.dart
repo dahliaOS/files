@@ -2,22 +2,24 @@ import 'dart:io';
 
 import 'package:files/backend/entity_info.dart';
 import 'package:files/backend/utils.dart';
+import 'package:files/backend/workspace.dart';
 import 'package:files/widgets/entity_context_menu.dart';
 import 'package:files/widgets/timed_inkwell.dart';
-import 'package:files/widgets/workspace.dart';
 import 'package:flutter/material.dart';
 
 typedef EntityCallback = void Function(EntityInfo entity);
 typedef DropAcceptCallback = void Function(String path);
 
-class FilesGrid extends StatelessWidget {
+class FilesGrid extends StatefulWidget {
   final List<EntityInfo> entities;
   final EntityCallback? onEntityTap;
   final EntityCallback? onEntityDoubleTap;
   final EntityCallback? onEntityLongTap;
   final EntityCallback? onEntitySecondaryTap;
+  final ValueChanged<double>? onSizeChange;
   final DropAcceptCallback? onDropAccept;
   final double size;
+  final ScrollController? controller;
 
   const FilesGrid({
     required this.entities,
@@ -26,14 +28,24 @@ class FilesGrid extends StatelessWidget {
     this.onEntityLongTap,
     this.onEntitySecondaryTap,
     this.onDropAccept,
+    this.onSizeChange,
     this.size = 96,
+    this.controller,
     super.key,
   });
 
   @override
+  State<FilesGrid> createState() => _FilesGridState();
+}
+
+class _FilesGridState extends State<FilesGrid> {
+  final ScrollController _internalScrollController = ScrollController();
+  ScrollController get scrollController =>
+      widget.controller ?? _internalScrollController;
+
+  @override
   Widget build(BuildContext context) {
     final WorkspaceController controller = WorkspaceController.of(context);
-    final ScrollController scrollController = ScrollController();
 
     return GestureDetector(
       onTap: controller.clearSelectedItems,
@@ -41,16 +53,16 @@ class FilesGrid extends StatelessWidget {
         controller: scrollController,
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: size,
-            mainAxisExtent: size,
+            maxCrossAxisExtent: widget.size,
+            mainAxisExtent: widget.size,
             mainAxisSpacing: 16.0,
             crossAxisSpacing: 16.0,
           ),
           padding: const EdgeInsets.all(16),
-          itemCount: entities.length,
+          itemCount: widget.entities.length,
           controller: scrollController,
           itemBuilder: (context, index) {
-            final EntityInfo entityInfo = entities[index];
+            final EntityInfo entityInfo = widget.entities[index];
 
             return Draggable<FileSystemEntity>(
               data: entityInfo.entity,
@@ -76,11 +88,11 @@ class FilesGrid extends StatelessWidget {
               child: FileCell(
                 entity: entityInfo,
                 selected: controller.selectedItems.contains(entityInfo),
-                onTap: onEntityTap,
-                onDoubleTap: onEntityDoubleTap,
-                onLongTap: onEntityLongTap,
-                onSecondaryTap: onEntitySecondaryTap,
-                onDropAccept: onDropAccept,
+                onTap: widget.onEntityTap,
+                onDoubleTap: widget.onEntityDoubleTap,
+                onLongTap: widget.onEntityLongTap,
+                onSecondaryTap: widget.onEntitySecondaryTap,
+                onDropAccept: widget.onDropAccept,
               ),
             );
           },
@@ -176,12 +188,16 @@ class Cell extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          icon,
-          color: iconColor,
-          size: 64,
+        const SizedBox(height: 8),
+        Expanded(
+          child: _ConstrainedIcon(
+            child: Icon(
+              icon,
+              color: iconColor,
+            ),
+          ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(height: 8),
         DefaultTextStyle(
           style: const TextStyle(fontSize: 14),
           overflow: TextOverflow.ellipsis,
@@ -189,7 +205,28 @@ class Cell extends StatelessWidget {
           textAlign: TextAlign.center,
           child: Text(name),
         ),
+        const SizedBox(height: 8),
       ],
+    );
+  }
+}
+
+class _ConstrainedIcon extends StatelessWidget {
+  final Widget child;
+
+  const _ConstrainedIcon({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return IconTheme(
+          data: Theme.of(context)
+              .iconTheme
+              .copyWith(size: constraints.biggest.shortestSide),
+          child: child,
+        );
+      },
     );
   }
 }

@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:files/backend/entity_info.dart';
 import 'package:files/backend/utils.dart';
+import 'package:files/backend/workspace.dart';
 import 'package:files/widgets/double_scrollbars.dart';
 import 'package:files/widgets/entity_context_menu.dart';
 import 'package:files/widgets/timed_inkwell.dart';
-import 'package:files/widgets/workspace.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -22,7 +22,7 @@ typedef HeaderResizeCallback = void Function(
   DragUpdateDetails details,
 );
 
-class FilesTable extends StatefulWidget {
+class FilesTable extends StatelessWidget {
   final List<FilesRow> rows;
   final List<FilesColumn> columns;
   final double rowHeight;
@@ -49,45 +49,6 @@ class FilesTable extends StatefulWidget {
   });
 
   @override
-  State<FilesTable> createState() => _FilesTableState();
-}
-
-class _FilesTableState extends State<FilesTable> {
-  /* late ScrollController xController;
-  late ScrollController yController;
-
-  @override
-  void initState() {
-    super.initState();
-    updateController(widget.horizontalController, Axis.horizontal);
-    updateController(widget.verticalController, Axis.vertical);
-  }
-
-  @override
-  void didUpdateWidget(covariant FilesTable old) {
-    super.didUpdateWidget(old);
-
-    if (widget.horizontalController != old.horizontalController) {
-      updateController(widget.horizontalController, Axis.horizontal);
-    }
-
-    if (widget.verticalController != old.verticalController) {
-      updateController(widget.verticalController, Axis.vertical);
-    }
-  }
-
-  void updateController(ScrollController? newController, Axis axis) {
-    switch (axis) {
-      case Axis.vertical:
-        yController = newController ?? ScrollController();
-        break;
-      case Axis.horizontal:
-        xController = newController ?? ScrollController();
-        break;
-    }
-  } */
-
-  @override
   Widget build(BuildContext context) {
     final WorkspaceController controller = WorkspaceController.of(context);
 
@@ -96,29 +57,29 @@ class _FilesTableState extends State<FilesTable> {
         return GestureDetector(
           onTap: () => controller.clearSelectedItems(),
           child: DoubleScrollbars(
-            horizontalController: widget.horizontalController,
-            verticalController: widget.verticalController,
+            horizontalController: horizontalController,
+            verticalController: verticalController,
             child: ScrollProxy(
               direction: Axis.horizontal,
               child: SingleChildScrollView(
-                controller: widget.horizontalController,
+                controller: horizontalController,
                 scrollDirection: Axis.horizontal,
                 child: ScrollProxy(
                   direction: Axis.vertical,
                   child: SizedBox(
                     height: constraints.maxHeight,
-                    width: layoutWidth + widget.rowHorizontalPadding * 2,
+                    width: layoutWidth + rowHorizontalPadding * 2,
                     child: Stack(
                       children: [
                         Positioned.fill(
                           child: ListView.builder(
-                            itemBuilder: (context, index) => _buildRow(index),
+                            itemBuilder: _buildRow,
                             padding: const EdgeInsets.only(top: 36),
-                            itemCount: widget.rows.length,
-                            controller: widget.verticalController,
+                            itemCount: rows.length,
+                            controller: verticalController,
                           ),
                         ),
-                        _buildHeaderRow(),
+                        _buildHeaderRow(context),
                       ],
                     ),
                   ),
@@ -131,9 +92,9 @@ class _FilesTableState extends State<FilesTable> {
     );
   }
 
-  double get layoutWidth => widget.columns.map((e) => e.normalizedWidth).sum;
+  double get layoutWidth => columns.map((e) => e.normalizedWidth).sum;
 
-  Widget _buildHeaderRow() {
+  Widget _buildHeaderRow(BuildContext context) {
     return SizedBox(
       height: 32,
       child: Material(
@@ -141,14 +102,14 @@ class _FilesTableState extends State<FilesTable> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ...widget.columns.mapIndexed(
+            ...columns.mapIndexed(
               (index, column) => _buildHeaderCell(
                 column,
                 index,
               ),
             ),
             Container(
-              width: widget.rowHorizontalPadding,
+              width: rowHorizontalPadding,
               color: Theme.of(context).colorScheme.background,
             ),
           ],
@@ -157,17 +118,17 @@ class _FilesTableState extends State<FilesTable> {
     );
   }
 
-  Widget _buildRow(int index) {
-    final row = widget.rows[index];
+  Widget _buildRow(BuildContext context, int index) {
+    final row = rows[index];
 
     return Draggable<FileSystemEntity>(
       childWhenDragging: _FilesRow(
         row: row,
-        columns: widget.columns,
-        horizontalPadding: widget.rowHorizontalPadding,
+        columns: columns,
+        horizontalPadding: rowHorizontalPadding,
         size: Size(
-          layoutWidth + (widget.rowHorizontalPadding * 2),
-          widget.rowHeight,
+          layoutWidth + (rowHorizontalPadding * 2),
+          rowHeight,
         ),
       ),
       data: row.entity.entity,
@@ -189,11 +150,11 @@ class _FilesTableState extends State<FilesTable> {
       ),
       child: _FilesRow(
         row: row,
-        columns: widget.columns,
-        horizontalPadding: widget.rowHorizontalPadding,
+        columns: columns,
+        horizontalPadding: rowHorizontalPadding,
         size: Size(
-          layoutWidth + (widget.rowHorizontalPadding * 2),
-          widget.rowHeight,
+          layoutWidth + (rowHorizontalPadding * 2),
+          rowHeight,
         ),
       ),
     );
@@ -232,26 +193,26 @@ class _FilesTableState extends State<FilesTable> {
       child: Row(
         children: [
           Expanded(child: child),
-          if (widget.columnIndex == index)
+          if (columnIndex == index)
             Icon(
-              widget.ascending ? Icons.arrow_downward : Icons.arrow_upward,
+              ascending ? Icons.arrow_downward : Icons.arrow_upward,
               size: 16,
             ),
         ],
       ),
     );
 
-    final double startPadding = index == 0 ? widget.rowHorizontalPadding : 0;
+    final double startPadding = index == 0 ? rowHorizontalPadding : 0;
 
     return InkWell(
       onTap: column.allowSorting
           ? () {
-              bool newAscending = widget.ascending;
-              if (widget.columnIndex == index) {
+              bool newAscending = ascending;
+              if (columnIndex == index) {
                 newAscending = !newAscending;
               }
 
-              widget.onHeaderCellTap?.call(newAscending, index);
+              onHeaderCellTap?.call(newAscending, index);
             }
           : null,
       child: Container(
@@ -267,7 +228,7 @@ class _FilesTableState extends State<FilesTable> {
             Positioned.fill(
               child: Padding(
                 padding: EdgeInsetsDirectional.only(
-                  start: index == 0 ? widget.rowHorizontalPadding : 8,
+                  start: index == 0 ? rowHorizontalPadding : 8,
                   end: 8,
                 ),
                 child: child,
@@ -284,7 +245,7 @@ class _FilesTableState extends State<FilesTable> {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onHorizontalDragUpdate: (details) {
-                    widget.onHeaderResize?.call(index, details);
+                    onHeaderResize?.call(index, details);
                   },
                   child: const VerticalDivider(width: 8),
                 ),

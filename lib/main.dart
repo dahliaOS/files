@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import 'package:animations/animations.dart';
 import 'package:files/backend/folder_provider.dart';
 import 'package:files/backend/providers.dart';
 import 'package:files/backend/utils.dart';
+import 'package:files/backend/workspace.dart';
 import 'package:files/widgets/context_menu/context_menu_theme.dart';
 import 'package:files/widgets/side_pane.dart';
 import 'package:files/widgets/tab_strip.dart';
@@ -148,21 +148,9 @@ class _FilesHomeState extends State<FilesHome> {
                   ),
                 ),
                 Expanded(
-                  child: PageTransitionSwitcher(
-                    transitionBuilder:
-                        (child, primaryAnimation, secondaryAnimation) {
-                      return SharedAxisTransition(
-                        animation: primaryAnimation,
-                        secondaryAnimation: secondaryAnimation,
-                        transitionType: SharedAxisTransitionType.scaled,
-                        fillColor: Colors.transparent,
-                        child: child,
-                      );
-                    },
-                    child: FilesWorkspace(
-                      key: ValueKey(currentWorkspace),
-                      controller: workspaces[currentWorkspace],
-                    ),
+                  child: FilesWorkspace(
+                    key: ValueKey(currentWorkspace),
+                    controller: workspaces[currentWorkspace],
                   ),
                 ),
               ],
