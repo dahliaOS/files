@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 import 'package:animations/animations.dart';
+import 'package:files/backend/folder_provider.dart';
 import 'package:files/backend/providers.dart';
 import 'package:files/backend/utils.dart';
 import 'package:files/widgets/context_menu/context_menu_theme.dart';
@@ -90,13 +91,12 @@ class _FilesHomeState extends State<FilesHome> {
   @override
   void initState() {
     super.initState();
-    for (final MapEntry<String, IconData> element
-        in folderProvider.directories.entries) {
+    for (final BuiltinFolder element in folderProvider.folders) {
       sideDestinations.add(
         SideDestination(
-          element.value,
-          Utils.getEntityName(element.key),
-          element.key,
+          folderProvider.getIconForType(element.type),
+          Utils.getEntityName(element.directory.path),
+          element.directory.path,
         ),
       );
     }

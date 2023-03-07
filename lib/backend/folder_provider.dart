@@ -18,23 +18,29 @@ limitations under the License.
 
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:windows_path_provider/windows_path_provider.dart';
 import 'package:xdg_directories/xdg_directories.dart';
 
 class FolderProvider {
-  final Map<String, IconData> directories;
+  final List<BuiltinFolder> _folders;
+
+  List<BuiltinFolder> get folders => List.from(_folders);
 
   static Future<FolderProvider> init() async {
-    final Map<String, IconData> directories = {};
+    final List<BuiltinFolder> folders = [];
 
     if (Platform.isWindows) {
       for (final WindowsFolder folder in WindowsFolder.values) {
         final String? path = await WindowsPathProvider.getPath(folder);
 
-        if (path != null) {
-          directories[path] = icons[windowsFolderToString(folder)]!;
-        }
+        if (path == null) continue;
+
+        final FolderType? type = folder.toFolderType();
+        if (type == null) continue;
+
+        folders.add(BuiltinFolder(type, Directory(path)));
       }
     } else if (Platform.isLinux) {
       final Set<String> dirNames = getUserDirectoryNames();
@@ -43,31 +49,77 @@ class FolderProvider {
           .path
           .split(Platform.pathSeparator)
         ..removeLast();
-      directories[backDir.join(Platform.pathSeparator)] = icons["HOME"]!;
+      folders.add(
+        BuiltinFolder(
+          FolderType.home,
+          Directory(backDir.join(Platform.pathSeparator)),
+        ),
+      );
 
       for (final String element in dirNames) {
-        directories[getUserDirectory(element)!.path] = icons[element]!;
+        final FolderType? type = FolderType.fromString(element);
+        if (type == null) continue;
+
+        folders.add(
+          BuiltinFolder(
+            type,
+            Directory(getUserDirectory(element)!.path),
+          ),
+        );
       }
     } else {
       throw Exception("Platform not supported");
     }
 
-    return FolderProvider(directories);
+    return FolderProvider._(folders);
   }
 
-  const FolderProvider(this.directories);
+  const FolderProvider._(this._folders);
+
+  IconData getIconForType(FolderType type) {
+    return _icons[type]!;
+  }
+
+  BuiltinFolder? isBuiltinFolder(String path) {
+    return _folders.firstWhereOrNull((v) => v.directory.path == path);
+  }
 }
 
-const Map<String, IconData> icons = {
-  "HOME": Icons.home_filled,
-  "DESKTOP": Icons.desktop_windows,
-  "DOCUMENTS": Icons.note_outlined,
-  "PICTURES": Icons.photo_library_outlined,
-  "DOWNLOAD": Icons.file_download,
-  "VIDEOS": Icons.videocam_outlined,
-  "MUSIC": Icons.music_note_outlined,
-  "PUBLICSHARE": Icons.public_outlined,
-  "TEMPLATES": Icons.file_copy_outlined,
+enum FolderType {
+  home,
+  desktop,
+  documents,
+  pictures,
+  download,
+  videos,
+  music,
+  publicShare,
+  templates;
+
+  static FolderType? fromString(String value) {
+    return FolderType.values
+        .asNameMap()
+        .map((k, v) => MapEntry(k.toUpperCase(), v))[value.toUpperCase()];
+  }
+}
+
+class BuiltinFolder {
+  final FolderType type;
+  final Directory directory;
+
+  const BuiltinFolder(this.type, this.directory);
+}
+
+const Map<FolderType, IconData> _icons = {
+  FolderType.home: Icons.home_filled,
+  FolderType.desktop: Icons.desktop_windows,
+  FolderType.documents: Icons.note_outlined,
+  FolderType.pictures: Icons.photo_library_outlined,
+  FolderType.download: Icons.file_download,
+  FolderType.videos: Icons.videocam_outlined,
+  FolderType.music: Icons.music_note_outlined,
+  FolderType.publicShare: Icons.public_outlined,
+  FolderType.templates: Icons.file_copy_outlined,
 };
 
 String windowsFolderToString(WindowsFolder folder) {
@@ -90,5 +142,18 @@ String windowsFolderToString(WindowsFolder folder) {
       return "PUBLICSHARE";
     case WindowsFolder.templates:
       return "TEMPLATES";
+  }
+}
+
+extension on WindowsFolder {
+  FolderType? toFolderType() {
+    switch (this) {
+      case WindowsFolder.profile:
+        return FolderType.home;
+      case WindowsFolder.public:
+        return FolderType.publicShare;
+      default:
+        return FolderType.fromString(name);
+    }
   }
 }

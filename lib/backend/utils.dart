@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:files/backend/folder_provider.dart';
 import 'package:files/backend/path_parts.dart';
 import 'package:files/backend/providers.dart';
 import 'package:flutter/material.dart';
@@ -58,14 +59,17 @@ class Utils {
   }
 
   static IconData iconForFolder(String path) {
-    final IconData? builtinFolderIcon = folderProvider.directories[path];
+    final BuiltinFolder? builtinFolder = folderProvider.isBuiltinFolder(path);
+    final IconData? builtinFolderIcon = builtinFolder != null
+        ? folderProvider.getIconForType(builtinFolder.type)
+        : null;
 
     return builtinFolderIcon ?? Icons.folder;
   }
 
   static String getEntityName(String path) {
     final PathParts pathParts = PathParts.parse(path);
-    return pathParts.parts.isNotEmpty ? pathParts.parts.last : pathParts.root;
+    return pathParts.integralParts.last;
   }
 
   static void moveFileToDest(FileSystemEntity origin, String dest) {

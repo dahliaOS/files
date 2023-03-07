@@ -19,6 +19,7 @@ Future<void> initProviders() async {
   final isar = await Isar.open(
     [EntityStatSchema],
     directory: _isarPath(dir),
+    inspector: false,
   );
   final folderProvider = await FolderProvider.init();
 

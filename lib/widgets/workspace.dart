@@ -136,9 +136,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
           child: BreadcrumbsBar(
             path: PathParts.parse(controller.currentDir),
             onBreadcrumbPress: (value) {
-              controller.changeCurrentDir(
-                PathParts.parse(controller.currentDir).toPath(value),
-              );
+              controller.changeCurrentDir(value);
             },
             onPathSubmitted: (path) async {
               final bool exists = await Directory(path).exists();

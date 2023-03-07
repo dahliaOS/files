@@ -40,6 +40,15 @@ class PathParts {
     return "$root$path";
   }
 
+  PathParts trim(int numOfParts) {
+    assert(numOfParts >= 0 && numOfParts <= parts.length);
+    final List<String> transformedPathParts = parts.sublist(0, numOfParts);
+
+    return PathParts(root, transformedPathParts, separator);
+  }
+
+  List<String> get integralParts => [root, ...parts];
+
   @override
   String toString() {
     return {
