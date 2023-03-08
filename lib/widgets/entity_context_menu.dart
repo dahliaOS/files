@@ -1,6 +1,6 @@
-import 'package:files/widgets/context_menu/context_menu.dart';
-import 'package:files/widgets/context_menu/context_menu_entry.dart';
+import 'package:files/widgets/context_menu.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class EntityContextMenu extends StatelessWidget {
   final Widget child;
@@ -24,39 +24,37 @@ class EntityContextMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return ContextMenu(
       entries: [
-        ContextMenuEntry(
-          id: 'open',
-          title: const Text("Open"),
+        ContextMenuItem(
+          child: const Text("Open"),
           onTap: onOpen,
-          shortcut: const Text("Return"),
+          shortcut: const SingleActivator(LogicalKeyboardKey.enter),
         ),
-        ContextMenuEntry(
-          id: 'open_with',
-          title: const Text("Open with other application"),
+        ContextMenuItem(
+          child: const Text("Open with other application"),
           onTap: onOpenWith,
           enabled: false,
         ),
         const ContextMenuDivider(),
-        ContextMenuEntry(
-          id: 'copy',
+        ContextMenuItem(
           leading: const Icon(Icons.file_copy_outlined),
-          title: const Text("Copy file"),
+          child: const Text("Copy file"),
           onTap: onCopy,
-          shortcut: const Text("Ctrl+C"),
+          shortcut:
+              const SingleActivator(LogicalKeyboardKey.keyC, control: true),
         ),
-        ContextMenuEntry(
-          id: 'cut',
+        ContextMenuItem(
           leading: const Icon(Icons.cut_outlined),
-          title: const Text("Cut file"),
+          child: const Text("Cut file"),
           onTap: onCut,
-          shortcut: const Text("Ctrl+X"),
+          shortcut:
+              const SingleActivator(LogicalKeyboardKey.keyX, control: true),
         ),
-        ContextMenuEntry(
-          id: 'paste',
+        ContextMenuItem(
           leading: const Icon(Icons.paste_outlined),
-          title: const Text("Paste file"),
+          child: const Text("Paste file"),
           onTap: onPaste,
-          shortcut: const Text("Ctrl+V"),
+          shortcut:
+              const SingleActivator(LogicalKeyboardKey.keyV, control: true),
         )
       ],
       child: child,

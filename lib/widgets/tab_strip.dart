@@ -1,7 +1,6 @@
 import 'package:files/backend/utils.dart';
 import 'package:files/backend/workspace.dart';
-import 'package:files/widgets/context_menu/context_menu.dart';
-import 'package:files/widgets/context_menu/context_menu_entry.dart';
+import 'package:files/widgets/context_menu.dart';
 import 'package:flutter/material.dart';
 
 class TabStrip extends StatelessWidget {
@@ -30,16 +29,14 @@ class TabStrip extends StatelessWidget {
           Expanded(
             child: ListView.separated(
               itemBuilder: (context, index) => ContextMenu(
-                openOnLong: false,
+                openOnLongPress: false,
                 entries: [
-                  ContextMenuEntry(
-                    id: 'create',
-                    title: const Text("Create new tab"),
+                  ContextMenuItem(
+                    child: const Text("Create new tab"),
                     onTap: () => onNewTab?.call(),
                   ),
-                  ContextMenuEntry(
-                    id: 'close',
-                    title: const Text("Close tab"),
+                  ContextMenuItem(
+                    child: const Text("Close tab"),
                     onTap: () => onTabClosed?.call(index),
                     enabled: allowClosing,
                   ),

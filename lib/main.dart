@@ -18,7 +18,6 @@ import 'package:files/backend/folder_provider.dart';
 import 'package:files/backend/providers.dart';
 import 'package:files/backend/utils.dart';
 import 'package:files/backend/workspace.dart';
-import 'package:files/widgets/context_menu/context_menu_theme.dart';
 import 'package:files/widgets/side_pane.dart';
 import 'package:files/widgets/tab_strip.dart';
 import 'package:files/widgets/workspace.dart';
@@ -62,7 +61,13 @@ class Files extends StatelessWidget {
           mainAxisMargin: 0,
           radius: Radius.zero,
         ),
-        extensions: [ContextMenuTheme()],
+        menuTheme: const MenuThemeData(
+          style: MenuStyle(
+            padding: MaterialStatePropertyAll(
+              EdgeInsets.symmetric(vertical: 16),
+            ),
+          ),
+        ),
       ),
       scrollBehavior: const MaterialScrollBehavior().copyWith(
         scrollbars: false,

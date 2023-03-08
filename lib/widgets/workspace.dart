@@ -8,8 +8,7 @@ import 'package:files/backend/path_parts.dart';
 import 'package:files/backend/utils.dart';
 import 'package:files/backend/workspace.dart';
 import 'package:files/widgets/breadcrumbs_bar.dart';
-import 'package:files/widgets/context_menu/context_menu.dart';
-import 'package:files/widgets/context_menu/context_menu_entry.dart';
+import 'package:files/widgets/context_menu.dart';
 import 'package:files/widgets/folder_dialog.dart';
 import 'package:files/widgets/grid.dart';
 import 'package:files/widgets/table.dart';
@@ -174,95 +173,58 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
     }
   }
 
-  List<PopupMenuEntry<String>> _getMenuEntries(BuildContext context) {
+  List<BaseContextMenuItem> _getMenuEntries(BuildContext context) {
     return [
-      ContextMenuEntry(
-        id: 'showHidden',
-        shortcut: Switch(
-          value: controller.showHidden,
-          onChanged: (flag) {
-            _setHidden(flag);
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text('Show hidden files'),
-        onTap: () => _setHidden(!controller.showHidden),
+      CheckboxMenuItem(
+        value: controller.showHidden,
+        onChanged: (val) => _setHidden(val!),
+        child: const Text('Show hidden files'),
       ),
-      ContextMenuEntry(
-        id: 'createFolder',
-        title: const Text('Create new folder'),
-        onTap: () => _createFolder(),
+      ContextMenuItem(
+        child: const Text('Create new folder'),
+        onTap: _createFolder,
       ),
       const ContextMenuDivider(),
-      ContextMenuEntry(
-        id: 'name',
-        title: const Text('Name'),
-        onTap: () => _setSortType(SortType.name),
-        shortcut: Radio<SortType>(
-          value: SortType.name,
-          groupValue: controller.sortType,
-          onChanged: (SortType? type) {
-            _setSortType(type);
-            Navigator.pop(context);
-          },
-        ),
+      RadioMenuItem(
+        child: const Text('Name'),
+        value: SortType.name,
+        groupValue: controller.sortType,
+        onChanged: _setSortType,
       ),
-      ContextMenuEntry(
-        id: 'modifies',
-        title: const Text('Modifies'),
-        onTap: () => _setSortType(SortType.modified),
-        shortcut: Radio<SortType>(
-          value: SortType.modified,
-          groupValue: controller.sortType,
-          onChanged: (SortType? type) {
-            _setSortType(type);
-            Navigator.pop(context);
-          },
-        ),
+      RadioMenuItem(
+        child: const Text('Modifies'),
+        value: SortType.modified,
+        groupValue: controller.sortType,
+        onChanged: _setSortType,
       ),
-      ContextMenuEntry(
-        id: 'size',
-        title: const Text('Size'),
-        onTap: () => _setSortType(SortType.size),
-        shortcut: Radio<SortType>(
-          value: SortType.size,
-          groupValue: controller.sortType,
-          onChanged: (SortType? type) {
-            _setSortType(type);
-            Navigator.pop(context);
-          },
-        ),
+      RadioMenuItem(
+        child: const Text('Size'),
+        value: SortType.size,
+        groupValue: controller.sortType,
+        onChanged: _setSortType,
       ),
-      ContextMenuEntry(
-        id: 'type',
-        title: const Text('Type'),
-        onTap: () => _setSortType(SortType.type),
-        shortcut: Radio<SortType>(
-          value: SortType.type,
-          groupValue: controller.sortType,
-          onChanged: (SortType? type) {
-            _setSortType(type);
-            Navigator.pop(context);
-          },
-        ),
+      RadioMenuItem(
+        child: const Text('Type'),
+        value: SortType.type,
+        groupValue: controller.sortType,
+        onChanged: _setSortType,
       ),
       const ContextMenuDivider(),
-      ContextMenuEntry(
-        id: 'ascending',
-        title: const Text('Ascending'),
-        onTap: () => _setSortOrder(true),
-        leading: controller.ascending ? const Icon(Icons.check) : null,
+      RadioMenuItem<bool>(
+        value: true,
+        groupValue: controller.ascending,
+        child: const Text('Ascending'),
+        onChanged: (val) => _setSortOrder(val!),
       ),
-      ContextMenuEntry(
-        id: 'descending',
-        title: const Text('Descending'),
-        onTap: () => _setSortOrder(false),
-        leading: controller.ascending ? null : const Icon(Icons.check),
+      RadioMenuItem<bool>(
+        value: false,
+        groupValue: controller.ascending,
+        child: const Text('Descending'),
+        onChanged: (val) => _setSortOrder(val!),
       ),
       const ContextMenuDivider(),
-      ContextMenuEntry(
-        id: 'reload',
-        title: const Text('Reload'),
+      ContextMenuItem(
+        child: const Text('Reload'),
         onTap: () async {
           await controller.getInfoForDir(Directory(controller.currentDir));
         },
@@ -415,7 +377,7 @@ class _FilesWorkspaceState extends State<FilesWorkspace> {
 class _WorkspaceTopbar extends StatelessWidget {
   final WorkspaceController controller;
   final ValueChanged<WorkspaceView>? onWorkspaceViewChanged;
-  final PopupMenuItemBuilder<String>? popupBuilder;
+  final List<BaseContextMenuItem> Function(BuildContext context)? popupBuilder;
 
   const _WorkspaceTopbar({
     required this.controller,
@@ -489,14 +451,21 @@ class _WorkspaceTopbar extends StatelessWidget {
           splashRadius: 16,
         ),
         if (popupBuilder != null)
-          PopupMenuButton<String>(
-            splashRadius: 16,
-            color: Theme.of(context).colorScheme.surface,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(4)),
-            ),
-            offset: const Offset(0, 50),
-            itemBuilder: popupBuilder!,
+          MenuAnchor(
+            menuChildren: popupBuilder!(context)
+                .map((e) => e.buildWrapper(context))
+                .toList(),
+            builder: (context, controller, child) {
+              return IconButton(
+                onPressed: () {
+                  if (controller.isOpen) return controller.close();
+                  controller.open();
+                },
+                icon: const Icon(Icons.more_vert),
+                iconSize: 20,
+                splashRadius: 16,
+              );
+            },
           ),
       ],
       loadingProgress: controller.loadingProgress,
@@ -531,12 +500,11 @@ class _HistoryModifierIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ContextMenu<int>(
+    return ContextMenu(
       entries: controller.history.reversed
           .mapIndexed(
-            (index, e) => ContextMenuEntry<int>(
-              id: index,
-              title: Text(
+            (index, e) => ContextMenuItem(
+              child: Text(
                 Utils.getEntityName(e),
                 style: TextStyle(
                   color: index == controller.historyOffset

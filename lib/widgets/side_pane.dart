@@ -1,6 +1,5 @@
 import 'package:files/backend/workspace.dart';
-import 'package:files/widgets/context_menu/context_menu.dart';
-import 'package:files/widgets/context_menu/context_menu_entry.dart';
+import 'package:files/widgets/context_menu.dart';
 import 'package:flutter/material.dart';
 
 typedef NewTabCallback = void Function(String);
@@ -58,20 +57,17 @@ class _SidePaneState extends State<SidePane> {
           itemCount: widget.destinations.length,
           itemBuilder: (context, index) => ContextMenu(
             entries: [
-              ContextMenuEntry(
-                id: 'open',
-                title: const Text("Open"),
+              ContextMenuItem(
+                child: const Text("Open"),
                 onTap: () => widget.workspace
                     .changeCurrentDir(widget.destinations[index].path),
               ),
-              ContextMenuEntry(
-                id: 'open_in_new_tab',
-                title: const Text("Open in new tab"),
+              ContextMenuItem(
+                child: const Text("Open in new tab"),
                 onTap: () => widget.onNewTab(widget.destinations[index].path),
               ),
-              ContextMenuEntry(
-                id: 'open_in_new_window',
-                title: const Text("Open in new window"),
+              ContextMenuItem(
+                child: const Text("Open in new window"),
                 onTap: () {},
                 enabled: false,
               ),
