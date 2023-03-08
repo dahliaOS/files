@@ -14,19 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-//credits: @HrX03 for API https://github.com/HrX03/Flux
-
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:files/backend/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:windows_path_provider/windows_path_provider.dart';
 import 'package:xdg_directories/xdg_directories.dart';
 
 class FolderProvider {
   final List<BuiltinFolder> _folders;
+  final List<SideDestination> _destinations;
 
   List<BuiltinFolder> get folders => List.from(_folders);
+  List<SideDestination> get destinations => List.from(_destinations);
 
   static Future<FolderProvider> init() async {
     final List<BuiltinFolder> folders = [];
@@ -71,10 +72,19 @@ class FolderProvider {
       throw Exception("Platform not supported");
     }
 
-    return FolderProvider._(folders);
+    final List<SideDestination> destinations = [
+      for (final BuiltinFolder element in folders)
+        SideDestination(
+          _icons[element.type]!,
+          Utils.getEntityName(element.directory.path),
+          element.directory.path,
+        ),
+    ];
+
+    return FolderProvider._(folders, destinations);
   }
 
-  const FolderProvider._(this._folders);
+  const FolderProvider._(this._folders, this._destinations);
 
   IconData getIconForType(FolderType type) {
     return _icons[type]!;
@@ -108,6 +118,14 @@ class BuiltinFolder {
   final Directory directory;
 
   const BuiltinFolder(this.type, this.directory);
+}
+
+class SideDestination {
+  final IconData icon;
+  final String label;
+  final String path;
+
+  const SideDestination(this.icon, this.label, this.path);
 }
 
 const Map<FolderType, IconData> _icons = {

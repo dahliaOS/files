@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import 'package:files/backend/folder_provider.dart';
 import 'package:files/backend/providers.dart';
-import 'package:files/backend/utils.dart';
 import 'package:files/backend/workspace.dart';
 import 'package:files/widgets/side_pane.dart';
 import 'package:files/widgets/tab_strip.dart';
@@ -86,35 +84,19 @@ class FilesHome extends StatefulWidget {
 }
 
 class _FilesHomeState extends State<FilesHome> {
-  final List<SideDestination> sideDestinations = [];
-  final List<WorkspaceController> workspaces = [];
-  final PageStorageBucket bucket = PageStorageBucket();
+  late final List<WorkspaceController> workspaces = [
+    WorkspaceController(initialDir: folderProvider.destinations.first.path),
+  ];
   int currentWorkspace = 0;
 
   String get currentDir => workspaces[currentWorkspace].currentDir;
-
-  @override
-  void initState() {
-    super.initState();
-    for (final BuiltinFolder element in folderProvider.folders) {
-      sideDestinations.add(
-        SideDestination(
-          folderProvider.getIconForType(element.type),
-          Utils.getEntityName(element.directory.path),
-          element.directory.path,
-        ),
-      );
-    }
-    workspaces
-        .add(WorkspaceController(initialDir: sideDestinations.first.path));
-  }
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         SidePane(
-          destinations: sideDestinations,
+          destinations: folderProvider.destinations,
           workspace: workspaces[currentWorkspace],
           onNewTab: (String tabPath) {
             workspaces.add(WorkspaceController(initialDir: tabPath));

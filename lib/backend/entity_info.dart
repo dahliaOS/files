@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-//credits: @HrX03 for API https://github.com/HrX03/Flux
-
 import 'dart:io';
 
 import 'package:files/backend/database/model.dart';

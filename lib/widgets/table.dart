@@ -11,6 +11,7 @@ import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
+import 'package:recase/recase.dart';
 
 typedef HeaderTapCallback = void Function(
   bool newAscending,
@@ -161,47 +162,6 @@ class FilesTable extends StatelessWidget {
   }
 
   Widget _buildHeaderCell(FilesColumn column, int index) {
-    late Widget child;
-
-    switch (column.type) {
-      case FilesColumnType.name:
-        child = const Text(
-          "Name",
-          overflow: TextOverflow.ellipsis,
-        );
-        break;
-      case FilesColumnType.date:
-        child = const Text(
-          "Date",
-          overflow: TextOverflow.ellipsis,
-        );
-        break;
-      case FilesColumnType.type:
-        child = const Text(
-          "Type",
-          overflow: TextOverflow.ellipsis,
-        );
-        break;
-      case FilesColumnType.size:
-        child = const Text(
-          "Size",
-          overflow: TextOverflow.ellipsis,
-        );
-        break;
-    }
-    child = SizedBox.expand(
-      child: Row(
-        children: [
-          Expanded(child: child),
-          if (columnIndex == index)
-            Icon(
-              ascending ? Icons.arrow_downward : Icons.arrow_upward,
-              size: 16,
-            ),
-        ],
-      ),
-    );
-
     final double startPadding = index == 0 ? rowHorizontalPadding : 0;
 
     return InkWell(
@@ -231,7 +191,23 @@ class FilesTable extends StatelessWidget {
                   start: index == 0 ? rowHorizontalPadding : 8,
                   end: 8,
                 ),
-                child: child,
+                child: SizedBox.expand(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          column.type.formattedName,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (columnIndex == index)
+                        Icon(
+                          ascending ? Icons.arrow_downward : Icons.arrow_upward,
+                          size: 16,
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
             PositionedDirectional(
@@ -276,7 +252,9 @@ enum FilesColumnType {
   name,
   date,
   type,
-  size,
+  size;
+
+  String get formattedName => this.name.sentenceCase;
 }
 
 class FilesRow {

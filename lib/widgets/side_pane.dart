@@ -1,3 +1,4 @@
+import 'package:files/backend/folder_provider.dart';
 import 'package:files/backend/workspace.dart';
 import 'package:files/widgets/context_menu.dart';
 import 'package:flutter/material.dart';
@@ -90,12 +91,4 @@ class _SidePaneState extends State<SidePane> {
       ),
     );
   }
-}
-
-class SideDestination {
-  final IconData icon;
-  final String label;
-  final String path;
-
-  const SideDestination(this.icon, this.label, this.path);
 }
